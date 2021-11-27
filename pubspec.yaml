@@ -1,6 +1,6 @@
 name: result_monad
 description: A Dart implementation of the Result Monad
-version: 1.0.0-dev.1
+version: 1.0.0
 homepage: https://gitlab.com/HankG/dart-result-monad
 
 environment:
