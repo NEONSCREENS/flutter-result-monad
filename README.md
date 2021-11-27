@@ -34,6 +34,8 @@ import 'package:result_monad/result_monad.dart';
 ## Usage
 
 ```dart
+import 'package:result_monad/result_monad.dart';
+
 Result<double, String> invert(double value) {
   if (value == 0) {
     return Result.error('Cannot invert zero');
