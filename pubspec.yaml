@@ -1,6 +1,6 @@
 name: result_monad
 description: A Dart implementation of the Result Monad which allows for more expressive result generation and processing without using exceptions.
-version: 1.0.0
+version: 1.0.1
 homepage: https://gitlab.com/HankG/dart-result-monad
 
 environment:
