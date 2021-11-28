@@ -4,8 +4,8 @@ import '../result_monad.dart';
 /// `FutureResult<int,String> func() async {}`
 typedef FutureResult<T, E> = Future<Result<T, E>>;
 
-/// The Result Monad type which will encapsulate a success (ok) value of type T1
-/// or a failure (error) value of type T2
+/// The Result Monad type which will encapsulate a success (ok) value of type T
+/// or a failure (error) value of type E
 class Result<T, E> {
   final T? _value;
   final E? _error;
