@@ -105,8 +105,8 @@ class Result<T, E> {
   ///
   /// final size = File.open(filename)
   ///  .fold(
-  ///    (file) => file.stat().fileSize(),
-  ///    (error) => 0
+  ///    onSuccess: (file) => file.stat().fileSize(),
+  ///    onError: (error) => 0
   ///  );
   /// ```
   ///
