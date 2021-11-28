@@ -63,3 +63,5 @@ This result monad implementation takes inspiration from the
 [Rust result type](https://doc.rust-lang.org/std/result/index.html)
 and the [Kotlin Result](https://github.com/michaelbull/kotlin-result)
 implementation of the Result Monad.
+
+The pub.dev package page [can be found here](https://pub.dev/packages/result_monad).
