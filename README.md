@@ -2,6 +2,10 @@ A Dart implementation of the Result Monad found in Rust and other languages.
 This models either success (ok) or failure (error) of operations to allow for
 more expressive result generation and processing without using exceptions.
 
+[This blog post](https://nequalsonelifestyle.com/2021/11/29/result-monads-in-dart-and-flutter/)
+I wrote goes into the backgrounds of Result Monads and steps through the
+various aspects of the implementation for this library.
+
 ## Features
 
 * Result Monad with standard `ok` and `error` constructors
