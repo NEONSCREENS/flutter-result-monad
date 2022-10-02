@@ -1,19 +1,19 @@
 # Examples
 
-The project ships with examples which you can find 
+The project ships with examples which you can find
 [here](https://gitlab.com/HankG/dart-result-monad/-/tree/main/example).
 
 ## Simple Usage
 
-The simplest usage begins with defining the function return to be a 
+The simplest usage begins with defining the function return to be a
 Result Monad. The monad takes two types, the value type for when it
 succeeds and an error type for if it fails. The value type is always
 whatever the natural return of the function would be. The error type
-can be literally anything. For more complex cases you may have a 
-reusable object type. For cases where you use the `runCatching` 
-method to wrap exception-generating code in a way that returns a 
+can be literally anything. For more complex cases you may have a
+reusable object type. For cases where you use the `runCatching`
+method to wrap exception-generating code in a way that returns a
 Result monad it'll be whatever the `Exception` type that was thrown.
-In the below case it is simply an error String. Since the monad 
+In the below case it is simply an error String. Since the monad
 can be queried for if it is encapsulating a success `isSuccess` or
 failed `isFailure` options the type chosen is more for how the
 developer decides to propagate their errors.
@@ -32,7 +32,7 @@ Result<double, String> invert(double value) {
     return Result.error('Cannot invert zero');
   }
 
-  return Result.ok(1.0/value);
+  return Result.ok(1.0 / value);
 }
 
 void main() {
@@ -52,7 +52,7 @@ void main() {
 
 The example below is a larger example to show a more real world
 example. This program has methods for figuring out the temporary
-folder for the user and then creating a temporary file in that 
+folder for the user and then creating a temporary file in that
 folder that the user can write to. It then attempts to write to
 that file. This shows how comprehensively one can use the various
 parts of the library, from the `runCatching` surrounding file I/O,
@@ -77,10 +77,11 @@ void main(List<String> arguments) {
   // Probably would check if failure and stop here normally but want to show
   // that even starting with an error Result Monad flows correctly.
   final writtenSuccessfully = tmpFileResult
-      .andThen((file) => runCatching(() {
-    file.writeAsStringSync(stringToWrite);
-    return Result.ok(file);
-  }))
+      .andThen((file) =>
+      runCatching(() {
+        file.writeAsStringSync(stringToWrite);
+        return Result.ok(file);
+      }))
       .andThen((file) => runCatching(() => Result.ok(file.readAsStringSync())))
       .fold(
       onSuccess: (text) => text == stringToWrite,
@@ -89,9 +90,10 @@ void main(List<String> arguments) {
   print('Successfully wrote to temp file? $writtenSuccessfully');
 }
 
-Result<File, ErrorEnum> getTempFile(
-    {String prefix = '', String suffix = '.tmp'}) {
-  String tmpName = '$prefix${DateTime.now().millisecondsSinceEpoch}$suffix';
+Result<File, ErrorEnum> getTempFile({String prefix = '', String suffix = '.tmp'}) {
+  String tmpName = '$prefix${DateTime
+      .now()
+      .millisecondsSinceEpoch}$suffix';
   return getTempFolder()
       .andThen((tempFolder) =>
       Result.ok('$tempFolder${Platform.pathSeparator}$tmpName'))
@@ -123,7 +125,9 @@ Result<String, ErrorEnum> getTempFolder() {
     }
 
     final testFilePath =
-        '$folderName${Platform.pathSeparator}${DateTime.now().millisecondsSinceEpoch}.tmp';
+        '$folderName${Platform.pathSeparator}${DateTime
+        .now()
+        .millisecondsSinceEpoch}.tmp';
     final tmpFile = File(testFilePath);
     tmpFile.writeAsStringSync('test');
     tmpFile.deleteSync();
