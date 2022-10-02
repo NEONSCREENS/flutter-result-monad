@@ -9,6 +9,15 @@ void main() {
       expect(success.isSuccess, true);
       expect(success.isFailure, false);
       expect(success.value, resultValue);
+      expect(() => success.error, throwsA(isA<ResultMonadException>()));
+    });
+
+    test('Test create with nullable type', () {
+      final success = Result<String?, dynamic>.ok(null);
+      expect(success.isSuccess, true);
+      expect(success.isFailure, false);
+      expect(success.value, null);
+      expect(() => success.error, throwsA(isA<ResultMonadException>()));
     });
   });
 
@@ -19,6 +28,15 @@ void main() {
       expect(failure.isFailure, true);
       expect(failure.isSuccess, false);
       expect(failure.error, errorValue);
+      expect(() => failure.value, throwsA(isA<ResultMonadException>()));
+    });
+
+    test('Test create with nullable type', () {
+      final failure = Result<String?, dynamic>.error(null);
+      expect(failure.isFailure, true);
+      expect(failure.isSuccess, false);
+      expect(failure.error, null);
+      expect(() => failure.value, throwsA(isA<ResultMonadException>()));
     });
   });
 
@@ -106,7 +124,7 @@ void main() {
   group('Test andThen', () {
     test('Test chaining through to end', () async {
       final result = Result.ok('Success')
-          .andThen((value) => Result.ok(value.length))
+          .andThen((value) => Result.ok(value!.length))
           .andThen((value) => Result.ok('Original string length: $value'));
       expect(result.value, equals('Original string length: 7'));
     });

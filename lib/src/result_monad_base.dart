@@ -9,45 +9,48 @@ typedef FutureResult<T, E> = Future<Result<T, E>>;
 class Result<T, E> {
   final T? _value;
   final E? _error;
+  final bool _isSuccess;
 
   /// Create a new Result of the expected error type with the error value
   /// `Result<int,String> getErrorValue() => Result.error('This is an error');`
   Result.error(E error)
       : _value = null,
-        _error = error;
+        _error = error,
+        _isSuccess = false;
 
   /// Create a new Result of the expected success type with the success value
   /// `Result<int,String> getSuccess() => Result.ok(10);`
   Result.ok(T success)
       : _value = success,
-        _error = null;
+        _error = null,
+        _isSuccess = true;
 
   /// Returns the error if it is a failure Result Monad otherwise throws
   /// [ResultMonadException]. It is best to check that it is a failure monad
   /// by calling [isFailure].
-  E get error {
-    if (_error == null) {
+  E? get error {
+    if (isSuccess) {
       throw ResultMonadException.accessFailureOnSuccess();
     }
 
-    return _error!;
+    return _error;
   }
 
   /// Returns true if the Result Monad has a failure value, false otherwise
-  bool get isFailure => _error != null;
+  bool get isFailure => !_isSuccess;
 
   /// Returns true if the Result Monad has a success value, false otherwise
-  bool get isSuccess => _value != null;
+  bool get isSuccess => _isSuccess;
 
   /// Returns the value if it is a success Result Monad otherwise throws
   /// [ResultMonadException]. It is best to check that it is a success monad
   /// by calling [isSuccess].
-  T get value {
-    if (_value == null) {
+  T? get value {
+    if (!isSuccess) {
       throw ResultMonadException.accessSuccessOnFailure();
     }
 
-    return _value!;
+    return _value;
   }
 
   /// Executes the anonymous function passing the current value to it to support
@@ -60,9 +63,10 @@ class Result<T, E> {
   ///   .andThen((r2) => r2.doSomething2())
   ///   .andThen((r3) => r3.doSomething3())
   /// ```
-  Result<T2, dynamic> andThen<T2, E2>(Result<T2, E2> Function(T) thenFunction) {
+  Result<T2, dynamic> andThen<T2, E2>(
+      Result<T2, E2> Function(T?) thenFunction) {
     if (isSuccess) {
-      return thenFunction(_value!);
+      return thenFunction(_value);
     }
 
     return Result.error(_error!);
