@@ -5,7 +5,7 @@ Result<double, String> invert(double value) {
     return Result.error('Cannot invert zero');
   }
 
-  return Result.ok(1.0/value);
+  return Result.ok(1.0 / value);
 }
 
 void main() {

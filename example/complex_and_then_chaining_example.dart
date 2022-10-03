@@ -24,7 +24,9 @@ void main() async {
   });
 
   tempPath.match(
-      onSuccess: (value) => print(value), onError: (error) => print(error));
+    onSuccess: (value) => print(value),
+    onError: (error) => print(error),
+  );
 }
 
 Result<String, int> generateNewName() => Result.ok('${DateTime.now()}.tmp');
