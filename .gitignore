@@ -29,3 +29,4 @@ pubspec.lock
 
 # Code Coverage Output
 .test_coverage
+coverage
