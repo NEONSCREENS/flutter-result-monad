@@ -128,7 +128,7 @@ class Result<T, E> {
   /// final Result<int,String> result = obj.doSomething();
   /// final error = result.getErrorOrElse(()=>'No error found');
   /// ```
-  E getErrorOrElse(E Function() orElse) => !_isSuccess ? _error : orElse();
+  E getErrorOrElse(E Function() orElse) => isFailure ? _error : orElse();
 
   /// Returns the success value *if* the monad is wrapping a success or return
   /// the specified default value.
@@ -137,7 +137,7 @@ class Result<T, E> {
   /// final Result<int,String> result = obj.doSomething();
   /// final value = result.getValueOrElse(()=>-1);;
   /// ```
-  T getValueOrElse(T Function() orElse) => _isSuccess ? _value : orElse();
+  T getValueOrElse(T Function() orElse) => isSuccess ? _value : orElse();
 
   /// Maps from a monad from one error type to another. This is useful for
   /// transforming from error mappings between APIs etc.
