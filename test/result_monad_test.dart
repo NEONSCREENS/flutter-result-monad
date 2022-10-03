@@ -182,7 +182,7 @@ void main() {
     test('Regular Types', () {
       final success = Result<String, int>.ok('It worked!');
       final successFolded = success.fold(
-          onSuccess: (value) => success.value, onError: (error) => 'error');
+          onSuccess: (value) => value, onError: (error) => 'error');
       expect(successFolded, equals(success.value));
 
       final failed = Result<String, int>.error(100);
@@ -194,7 +194,7 @@ void main() {
     test('Nullable Types', () {
       final success = Result<String?, int?>.ok('It worked!');
       final successFolded = success.fold(
-        onSuccess: (value) => success.value,
+        onSuccess: (value) => value,
         onError: (error) => 'error',
       );
       expect(successFolded, equals(success.value));
