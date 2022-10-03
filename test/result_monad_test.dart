@@ -19,6 +19,14 @@ void main() {
       expect(success.value, null);
       expect(() => success.error, throwsA(isA<ResultMonadException>()));
     });
+
+    test('Test create with implicit nullable type', () {
+      final success = Result.ok(null);
+      expect(success.isSuccess, true);
+      expect(success.isFailure, false);
+      expect(success.value, null);
+      expect(() => success.error, throwsA(isA<ResultMonadException>()));
+    });
   });
 
   group('Test failure monad', () {
@@ -38,6 +46,14 @@ void main() {
       expect(failure.error, null);
       expect(() => failure.value, throwsA(isA<ResultMonadException>()));
     });
+
+    test('Test create with implicit nullable type', () {
+      final failure = Result.error(null);
+      expect(failure.isFailure, true);
+      expect(failure.isSuccess, false);
+      expect(failure.error, null);
+      expect(() => failure.value, throwsA(isA<ResultMonadException>()));
+    });
   });
 
   group('Test success value accessor', () {
@@ -45,6 +61,11 @@ void main() {
       const resultValue = 'Awesome';
       final success = Result.ok('Awesome');
       expect(success.value, resultValue);
+    });
+
+    test('Test success value accessor with nullable type', () {
+      final success = Result<String?, dynamic>.ok(null);
+      expect(success.value, null);
     });
 
     test('Test failed attempt at get value from failure', () {
@@ -60,6 +81,12 @@ void main() {
       expect(failure.error, resultValue);
     });
 
+    test('Test getting error from failure with nullable type', () {
+      final failure = Result<String?, dynamic>.error(null);
+      expect(failure.error, null);
+      expect(() => failure.value, throwsA(isA<ResultMonadException>()));
+    });
+
     test('Test failed attempt at get error value from success', () {
       expect(() => Result.ok('It Worked!').error,
           throwsA(isA<ResultMonadException>()));
@@ -73,10 +100,24 @@ void main() {
       expect(failure.getValueOrElse(() => elseResponse), equals(elseResponse));
     });
 
-    test('Test getValueOrElse on success', () {
-      final failure = Result.ok('It worked!');
+    test('Test getValueOrElse on failure with nullable', () {
+      final failure = Result<String?, String?>.error('This is a failure');
       const elseResponse = 'I guess it failed';
-      expect(failure.getValueOrElse(() => elseResponse), equals('It worked!'));
+      expect(failure.getValueOrElse(() => elseResponse), equals(elseResponse));
+      expect(failure.getValueOrElse(() => null), equals(null));
+    });
+
+    test('Test getValueOrElse on success', () {
+      final success = Result.ok('It worked!');
+      const elseResponse = 'I guess it failed';
+      expect(success.getValueOrElse(() => elseResponse), equals('It worked!'));
+    });
+
+    test('Test getValueOrElse on success with nullable', () {
+      final success = Result<String?, String?>.ok(null);
+      const elseResponse = 'I guess it failed';
+      expect(success.getValueOrElse(() => elseResponse), equals(null));
+      expect(success.getValueOrElse(() => null), equals(null));
     });
   });
 
@@ -88,45 +129,104 @@ void main() {
           equals('This is a failure'));
     });
 
-    test('Test getErrorOrElse on success', () {
-      final failure = Result.ok('It worked');
+    test('Test getErrorOrElse on failure with nullable', () {
+      final failure = Result<String?, String?>.error(null);
       const elseResponse = 'Did not have an error';
-      expect(failure.getErrorOrElse(() => elseResponse),
+      expect(failure.getErrorOrElse(() => elseResponse), equals(null));
+      expect(failure.getErrorOrElse(() => null), equals(null));
+    });
+
+    test('Test getErrorOrElse on success', () {
+      final success = Result.ok('It worked');
+      const elseResponse = 'Did not have an error';
+      expect(success.getErrorOrElse(() => elseResponse),
           equals('Did not have an error'));
+    });
+
+    test('Test getErrorOrElse on success with nullable', () {
+      final success = Result<String?, String?>.ok('It worked');
+      const elseResponse = 'Did not have an error';
+      expect(success.getErrorOrElse(() => elseResponse),
+          equals('Did not have an error'));
+      expect(success.getErrorOrElse(() => null), equals(null));
     });
   });
 
-  test('Test match', () {
-    final success = Result.ok('This is a success');
-    success.match(
-        onSuccess: (value) => expect(value, equals(success.value)),
-        onError: (error) => fail("Shouldn't execute this path"));
+  group('Test match', () {
+    test('Regular types', () {
+      final success = Result<String, String>.ok('This is a success');
+      success.match(
+          onSuccess: (value) => expect(value, equals(success.value)),
+          onError: (error) => fail("Shouldn't execute this path"));
 
-    final failure = Result.error('This is a failure');
-    failure.match(
-        onSuccess: (value) => fail("Shouldn't execute this path"),
-        onError: (error) => expect(error, equals(failure.error)));
+      final failure = Result<String, String>.error('This is a failure');
+      failure.match(
+          onSuccess: (value) => fail("Shouldn't execute this path"),
+          onError: (error) => expect(error, equals(failure.error)));
+    });
+
+    test('Nullable Types', () {
+      final success = Result<String?, String?>.ok('This is a success');
+      success.match(
+          onSuccess: (value) => expect(value, equals(success.value)),
+          onError: (error) => fail("Shouldn't execute this path"));
+
+      final failure = Result<String?, String?>.error('This is a failure');
+      failure.match(
+          onSuccess: (value) => fail("Shouldn't execute this path"),
+          onError: (error) => expect(error, equals(failure.error)));
+    });
   });
 
-  test('Test fold', () {
-    final success = Result<String, int>.ok('It worked!');
-    final successFolded = success.fold(
-        onSuccess: (value) => success.value, onError: (error) => 'error');
-    expect(successFolded, equals(success.value));
+  group('Test fold', () {
+    test('Regular Types', () {
+      final success = Result<String, int>.ok('It worked!');
+      final successFolded = success.fold(
+          onSuccess: (value) => success.value, onError: (error) => 'error');
+      expect(successFolded, equals(success.value));
 
-    final failed = Result<String, int>.error(100);
-    final failedFolded =
-        failed.fold(onSuccess: (value) => 0, onError: (error) => error);
-    expect(failedFolded, equals(failed.error));
+      final failed = Result<String, int>.error(100);
+      final failedFolded =
+          failed.fold(onSuccess: (value) => 0, onError: (error) => error);
+      expect(failedFolded, equals(failed.error));
+    });
+
+    test('Nullable Types', () {
+      final success = Result<String?, int?>.ok('It worked!');
+      final successFolded = success.fold(
+        onSuccess: (value) => success.value,
+        onError: (error) => 'error',
+      );
+      expect(successFolded, equals(success.value));
+
+      final failed = Result<String?, int?>.error(100);
+      final failedFolded = failed.fold(
+        onSuccess: (value) => 0,
+        onError: (error) => error,
+      );
+      expect(failedFolded, equals(failed.error));
+    });
   });
 
   // simpler 'and then' tests
   group('Test andThen', () {
     test('Test chaining through to end', () async {
       final result = Result.ok('Success')
-          .andThen((value) => Result.ok(value!.length))
+          .andThen((value) => Result.ok(value.length))
           .andThen((value) => Result.ok('Original string length: $value'));
       expect(result.value, equals('Original string length: 7'));
+    });
+
+    test('Test chaining through to end with nullable type', () async {
+      final result = Result<String?, int>.ok('Success')
+          .andThen((value) => Result.ok(value?.length ?? -1))
+          .andThen((value) => Result.ok('Original string length: $value'));
+      expect(result.value, equals('Original string length: 7'));
+
+      final result2 = Result<String?, int>.ok(null)
+          .andThen((value) => Result.ok(value?.length ?? -1))
+          .andThen((value) => Result.ok('Original string length: $value'));
+      expect(result2.value, equals('Original string length: -1'));
     });
 
     test('Test starting with failure', () async {
@@ -152,6 +252,20 @@ void main() {
           .andThenAsync(
               (value) async => Result.ok('Original string length: $value'));
       expect(result.value, equals('Original string length: 7'));
+    });
+
+    test('Test success result with nullable', () async {
+      final result = await (await Result<String?, int>.ok('Success')
+              .andThenAsync((value) async => Result.ok(value?.length ?? -1)))
+          .andThenAsync(
+              (value) async => Result.ok('Original string length: $value'));
+      expect(result.value, equals('Original string length: 7'));
+
+      final result2 = await (await Result<String?, int>.ok(null)
+              .andThenAsync((value) async => Result.ok(value?.length ?? -1)))
+          .andThenAsync(
+              (value) async => Result.ok('Original string length: $value'));
+      expect(result2.value, equals('Original string length: -1'));
     });
 
     test('Test starting with failure', () async {
@@ -186,14 +300,32 @@ void main() {
       expect(error2.error, equals('error2'));
     });
 
+    test('Test mapping of error same type nullable', () {
+      final error1 = Result<String, String?>.error('error');
+      final error2 = error1.mapError((error) => 'error2');
+      expect(error2.error, equals('error2'));
+    });
+
     test('Test mapping of error different type', () {
       final error1 = Result.error('error');
       final error2 = error1.mapError((error) => error.length);
       expect(error2.error, equals(5));
     });
 
+    test('Test mapping of error different type nullable', () {
+      final error1 = Result<String, String?>.error(null);
+      final error2 = error1.mapError((error) => error?.length);
+      expect(error2.error, equals(null));
+    });
+
     test('Test mapping of success type', () {
       final success = Result.ok('Success!');
+      final mapped = success.mapError((error) => 'error2');
+      expect(mapped.value, equals(success.value));
+    });
+
+    test('Test mapping of success type nullable', () {
+      final success = Result<String?, String?>.ok(null);
       final mapped = success.mapError((error) => 'error2');
       expect(mapped.value, equals(success.value));
     });
@@ -205,20 +337,47 @@ void main() {
       final success2 = success.mapValue((value) => 'Success2!');
       expect(success2.value, equals('Success2!'));
     });
+
+    test('Test mapping of value same type nullable', () {
+      final success = Result<String?, int>.ok(null);
+      final success2 = success.mapValue((value) => 'Success2!');
+      expect(success2.value, equals('Success2!'));
+    });
+
     test('Test mapping of value different type', () {
       final success = Result.ok('Success!');
       final success2 = success.mapValue((value) => value.length);
       expect(success2.value, equals(8));
     });
+
+    test('Test mapping of value different type nullable', () {
+      final success = Result<String?, String>.ok(null);
+      final success2 = success.mapValue((value) => value?.length);
+      expect(success2.value, equals(null));
+    });
+
     test('Test mapping of error type', () {
       final error = Result.error('error');
       final mapped = error.mapValue((value) => 'Success2!');
       expect(mapped.error, equals(error.error));
     });
+
+    test('Test mapping of error type', () {
+      final error = Result<String?, String?>.error(null);
+      final mapped = error.mapValue((value) => 'Success2!');
+      expect(mapped.error, equals(error.error));
+    });
   });
 
-  test('Test to string', () {
-    expect(Result.ok(10).toString(), equals('ok(10)'));
-    expect(Result.error(10).toString(), equals('error(10)'));
+  group('Test to string', () {
+    test('Regular Types', () {
+      expect(Result.ok(10).toString(), equals('ok(10)'));
+      expect(Result.error(10).toString(), equals('error(10)'));
+    });
+
+    test('Nullable Types', () {
+      expect(Result.ok(null).toString(), equals('ok(null)'));
+      expect(Result.error(null).toString(), equals('error(null)'));
+    });
   });
 }
