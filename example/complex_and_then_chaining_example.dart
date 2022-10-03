@@ -2,16 +2,16 @@ import 'package:result_monad/result_monad.dart';
 
 void main() async {
   getUser(true)
-      .andThen((user) => renameUser(user!, "joseph stone"))
-      .andThen((user) => validateUser(user!))
+      .andThen((user) => renameUser(user, "joseph stone"))
+      .andThen((user) => validateUser(user))
       .match(
           onSuccess: (value) => print(value), onError: (error) => print(error));
 
   final tempPath = await generateNewName()
-      .andThen((filename) => Result.ok(filename!.replaceAll('-', '_')))
-      .andThen((filename) => Result.ok(filename!.replaceAll(':', '_')))
-      .andThen((filename) => Result.ok(filename!.replaceAll(' ', '_')))
-      .andThen((filename) => filename!.contains('-') ||
+      .andThen((filename) => Result.ok(filename.replaceAll('-', '_')))
+      .andThen((filename) => Result.ok(filename.replaceAll(':', '_')))
+      .andThen((filename) => Result.ok(filename.replaceAll(' ', '_')))
+      .andThen((filename) => filename.contains('-') ||
               filename.contains(' ') ||
               filename.contains(':')
           ? Result.error("Can't have dashes, spaces, or colons")

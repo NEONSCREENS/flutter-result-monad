@@ -21,10 +21,10 @@ void main(List<String> arguments) {
   // that even starting with an error Result Monad flows correctly.
   final writtenSuccessfully = tmpFileResult
       .andThen((file) => runCatching(() {
-            file!.writeAsStringSync(stringToWrite);
+            file.writeAsStringSync(stringToWrite);
             return Result.ok(file);
           }))
-      .andThen((file) => runCatching(() => Result.ok(file!.readAsStringSync())))
+      .andThen((file) => runCatching(() => Result.ok(file.readAsStringSync())))
       .fold(onSuccess: (text) => text == stringToWrite, onError: (_) => false);
 
   print('Successfully wrote to temp file? $writtenSuccessfully');
@@ -36,7 +36,7 @@ Result<File, ErrorEnum> getTempFile(
   return getTempFolder()
       .andThen((tempFolder) =>
           Result.ok('$tempFolder${Platform.pathSeparator}$tmpName'))
-      .andThen((tmpPath) => Result.ok(File(tmpPath!)))
+      .andThen((tmpPath) => Result.ok(File(tmpPath)))
       .mapError((error) => error is ErrorEnum ? error : ErrorEnum.fileAccess);
 }
 
@@ -73,8 +73,7 @@ Result<String, ErrorEnum> getTempFolder() {
   });
 
   return canWriteResult
-      .andThen<String, ErrorEnum>((canWrite) => canWrite!
-          ? Result.ok(folderName)
-          : Result.error(ErrorEnum.fileAccess))
+      .andThen<String, ErrorEnum>((canWrite) =>
+          canWrite ? Result.ok(folderName) : Result.error(ErrorEnum.fileAccess))
       .mapError((_) => ErrorEnum.fileAccess);
 }
