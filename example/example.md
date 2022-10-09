@@ -77,27 +77,23 @@ void main(List<String> arguments) {
   // Probably would check if failure and stop here normally but want to show
   // that even starting with an error Result Monad flows correctly.
   final writtenSuccessfully = tmpFileResult
-      .andThen((file) =>
-      runCatching(() {
-        file.writeAsStringSync(stringToWrite);
-        return Result.ok(file);
-      }))
+      .andThen((file) => runCatching(() {
+    file.writeAsStringSync(stringToWrite);
+    return Result.ok(file);
+  }))
       .andThen((file) => runCatching(() => Result.ok(file.readAsStringSync())))
-      .fold(
-      onSuccess: (text) => text == stringToWrite,
-      onError: (_) => false);
+      .fold(onSuccess: (text) => text == stringToWrite, onError: (_) => false);
 
   print('Successfully wrote to temp file? $writtenSuccessfully');
 }
 
-Result<File, ErrorEnum> getTempFile({String prefix = '', String suffix = '.tmp'}) {
-  String tmpName = '$prefix${DateTime
-      .now()
-      .millisecondsSinceEpoch}$suffix';
+Result<File, ErrorEnum> getTempFile(
+    {String prefix = '', String suffix = '.tmp'}) {
+  String tmpName = '$prefix${DateTime.now().millisecondsSinceEpoch}$suffix';
   return getTempFolder()
-      .andThen((tempFolder) =>
-      Result.ok('$tempFolder${Platform.pathSeparator}$tmpName'))
-      .andThen((tmpPath) => Result.ok(File(tmpPath)))
+      .andThenSuccess(
+          (tempFolder) => '$tempFolder${Platform.pathSeparator}$tmpName')
+      .andThenSuccess((tmpPath) => File(tmpPath))
       .mapError((error) => error is ErrorEnum ? error : ErrorEnum.fileAccess);
 }
 
@@ -125,9 +121,7 @@ Result<String, ErrorEnum> getTempFolder() {
     }
 
     final testFilePath =
-        '$folderName${Platform.pathSeparator}${DateTime
-        .now()
-        .millisecondsSinceEpoch}.tmp';
+        '$folderName${Platform.pathSeparator}${DateTime.now().millisecondsSinceEpoch}.tmp';
     final tmpFile = File(testFilePath);
     tmpFile.writeAsStringSync('test');
     tmpFile.deleteSync();
