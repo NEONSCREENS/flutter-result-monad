@@ -245,6 +245,42 @@ void main() {
     });
   });
 
+  group('Test andThenSuccess', () {
+    test('Test chaining through to end', () async {
+      final result = Result.ok('Success')
+          .andThenSuccess((value) => value.length)
+          .andThenSuccess((value) => 'Original string length: $value');
+      expect(result.value, equals('Original string length: 7'));
+    });
+
+    test('Test chaining through to end with nullable type', () async {
+      final result = Result<String?, int>.ok('Success')
+          .andThenSuccess((value) => value?.length ?? -1)
+          .andThenSuccess((value) => 'Original string length: $value');
+      expect(result.value, equals('Original string length: 7'));
+
+      final result2 = Result<String?, int>.ok(null)
+          .andThenSuccess((value) => value?.length ?? -1)
+          .andThenSuccess((value) => 'Original string length: $value');
+      expect(result2.value, equals('Original string length: -1'));
+    });
+
+    test('Test starting with failure', () async {
+      final initial = Result.error('failed!');
+      final result = initial
+          .andThenSuccess((value) => value.length)
+          .andThenSuccess((value) => 'Original string length: $value');
+      expect(result.error, equals(initial.error));
+    });
+
+    test('Test chaining with short circuit', () async {
+      final result = Result.ok('Success')
+          .andThen((value) => Result.error('error'))
+          .andThenSuccess((value) => 'Original string length: $value');
+      expect(result.error, equals('error'));
+    });
+  });
+
   group('Test andThenAsync', () {
     test('Test success result', () async {
       final result = await (await Result.ok('Success')
@@ -288,6 +324,54 @@ void main() {
               .andThenAsync((value) async => throw FormatException()))
           .andThenAsync(
               (value) async => Result.ok('Original string length: $value'));
+      expect(result.isFailure, true);
+      expect(result.error, isA<FormatException>());
+    });
+  });
+
+  group('Test andThenSuccessAsync', () {
+    test('Test success result', () async {
+      final result = await (await Result.ok('Success')
+              .andThenSuccessAsync((value) async => value.length))
+          .andThenSuccessAsync(
+              (value) async => 'Original string length: $value');
+      expect(result.value, equals('Original string length: 7'));
+    });
+
+    test('Test success result with nullable', () async {
+      final result = await (await Result<String?, int>.ok('Success')
+              .andThenSuccessAsync((value) async => value?.length ?? -1))
+          .andThenSuccessAsync(
+              (value) async => 'Original string length: $value');
+      expect(result.value, equals('Original string length: 7'));
+
+      final result2 = await (await Result<String?, int>.ok(null)
+              .andThenSuccessAsync((value) async => value?.length ?? -1))
+          .andThenSuccessAsync(
+              (value) async => 'Original string length: $value');
+      expect(result2.value, equals('Original string length: -1'));
+    });
+
+    test('Test starting with failure', () async {
+      final initial = Result.error('failed!');
+      final result =
+          await initial.andThenSuccessAsync((value) async => value.length);
+      expect(result.error, equals(initial.error));
+    });
+
+    test('Test chaining with short circuit', () async {
+      final result = await (await Result.ok('Success')
+              .andThenAsync((value) async => Result.error('error')))
+          .andThenSuccessAsync(
+              (value) async => 'Original string length: $value');
+      expect(result.error, equals('error'));
+    });
+
+    test('Test chaining with exception short circuit', () async {
+      final result = await (await Result.ok('Success')
+              .andThenSuccessAsync((value) async => throw FormatException()))
+          .andThenSuccessAsync(
+              (value) async => 'Original string length: $value');
       expect(result.isFailure, true);
       expect(result.error, isA<FormatException>());
     });

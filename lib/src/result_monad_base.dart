@@ -69,6 +69,26 @@ class Result<T, E> {
     return Result.error(_error);
   }
 
+  /// Executes the anonymous function passing the current value to it to support
+  /// operation chaining. The function returns a non-Result value therefore
+  /// this assumes that the operation is always a success. This is helpful for
+  /// chaining functions that don't have result monads.
+  ///
+  /// Example:
+  /// ```dart
+  /// return doSomething()
+  ///   .andThen((r1) => r1.doSomething1())
+  ///   .andThen((r2) => r2.doSomething2())
+  ///   .andThen((r3) => r3.doSomething3())
+  /// ```
+  Result<T2, dynamic> andThenSuccess<T2, E2>(T2 Function(T) thenFunction) {
+    if (isSuccess) {
+      return Result.ok(thenFunction(_value));
+    }
+
+    return Result.error(_error);
+  }
+
   /// Executes the anonymous async function passed in on the current value. Due
   /// to Dart syntax peculiarities it may be cleaner to work with interim
   /// results.
@@ -88,6 +108,36 @@ class Result<T, E> {
     if (isSuccess) {
       try {
         return await thenFunction(_value);
+      } catch (e) {
+        return Result.error(e);
+      }
+    }
+
+    return Result.error(_error);
+  }
+
+  /// Executes the anonymous async function passed in on the current value. Due
+  /// to Dart syntax peculiarities it may be cleaner to work with interim
+  /// results.The function returns a non-Result value therefore
+  //  this assumes that the operation is always a success. This is helpful for
+  //  chaining functions that don't have result monads.
+  ///
+  /// ```dart
+  /// final asyncResult = await doSomething()
+  ///   .andThen((r1) => r1.doSomething1())
+  ///   .andThen((r2) => r2.doSomething2())
+  ///   .andThenAsync((r3) async  => r3.doSomething3())
+  ///
+  /// return asyncResult
+  ///   .andThen((r4) => r4.doSomething4())
+  ///   .andThen((r5) => r5.doSomething5())
+  /// ```
+  FutureResult<T2, dynamic> andThenSuccessAsync<T2, E2>(
+      Future<T2> Function(T) thenFunction) async {
+    if (isSuccess) {
+      try {
+        final result = await thenFunction(_value);
+        return Result.ok(result);
       } catch (e) {
         return Result.error(e);
       }
