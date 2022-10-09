@@ -63,7 +63,11 @@ class Result<T, E> {
   /// ```
   Result<T2, dynamic> andThen<T2, E2>(Result<T2, E2> Function(T) thenFunction) {
     if (isSuccess) {
-      return thenFunction(_value);
+      try {
+        return thenFunction(_value);
+      } catch (e) {
+        return Result.error(e);
+      }
     }
 
     return Result.error(_error);
@@ -83,7 +87,11 @@ class Result<T, E> {
   /// ```
   Result<T2, dynamic> andThenSuccess<T2, E2>(T2 Function(T) thenFunction) {
     if (isSuccess) {
-      return Result.ok(thenFunction(_value));
+      try {
+        return Result.ok(thenFunction(_value));
+      } catch (e) {
+        return Result.error(e);
+      }
     }
 
     return Result.error(_error);

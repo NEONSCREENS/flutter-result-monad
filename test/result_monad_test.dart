@@ -243,6 +243,14 @@ void main() {
           .andThen((value) => Result.ok('Original string length: $value'));
       expect(result.error, equals('error'));
     });
+
+    test('Test chaining with exception shortCut', () async {
+      final arr = [1, 2, 3];
+      final result = Result.ok('Success')
+          .andThen((value) => Result.ok(arr[arr.length + 1]))
+          .andThen((value) => Result.ok('$value'));
+      expect(result.error, isA<RangeError>());
+    });
   });
 
   group('Test andThenSuccess', () {
@@ -278,6 +286,14 @@ void main() {
           .andThen((value) => Result.error('error'))
           .andThenSuccess((value) => 'Original string length: $value');
       expect(result.error, equals('error'));
+    });
+
+    test('Test chaining with exception shortcut', () async {
+      final arr = [1, 2, 3];
+      final result = Result.ok('Success')
+          .andThenSuccess((value) => arr[arr.length + 1])
+          .andThenSuccess((value) => '$value');
+      expect(result.error, isA<RangeError>());
     });
   });
 
