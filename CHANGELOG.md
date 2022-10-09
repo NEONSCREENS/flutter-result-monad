@@ -1,3 +1,6 @@
+## 2.0.2
+- Add exception catching on `addThen` and `addThenSuccess` and FutureResult extension methods.
+
 ## 2.0.1
 - Tweaks to the README only.
 

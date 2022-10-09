@@ -1,25 +1,32 @@
 import '../result_monad.dart';
 
 extension FutureResultExtension<T, E> on Future<Result<T, E>> {
-  FutureResult<T2, E2> andThenAsync<T2, E2>(
+  FutureResult<T2, dynamic> andThenAsync<T2, E2>(
       FutureResult<T2, E2> Function(T) thenFunction) async {
-    final thisResult = await this;
-    if (thisResult.isFailure) {
-      return Result.error(thisResult.error as E2);
+    try {
+      final thisResult = await this;
+      if (thisResult.isFailure) {
+        return Result.error(thisResult.error as E2);
+      }
+      return thenFunction(thisResult.value);
+    } catch (e) {
+      return Result.error(e);
     }
-
-    return thenFunction(thisResult.value);
   }
 
-  FutureResult<T2, E2> andThenSuccessAsync<T2, E2>(
+  FutureResult<T2, dynamic> andThenSuccessAsync<T2, E2>(
       Future<T2> Function(T) thenFunction) async {
-    final thisResult = await this;
-    if (thisResult.isFailure) {
-      return Result.error(thisResult.error as E2);
-    }
+    try {
+      final thisResult = await this;
+      if (thisResult.isFailure) {
+        return Result.error(thisResult.error as E2);
+      }
 
-    final returnResult = await thenFunction(thisResult.value);
-    return Result.ok(returnResult);
+      final returnResult = await thenFunction(thisResult.value);
+      return Result.ok(returnResult);
+    } catch (e) {
+      return Result.error(e);
+    }
   }
 
   Future<void> match(
