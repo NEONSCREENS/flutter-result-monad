@@ -13,8 +13,8 @@ various aspects of the implementation for this library.
 or failure result and to get those values
 * `getValueOrElse` and `getErrorOrElse` methods to return a default value if 
 it is not the respective desired monad
-* `andThen` and `andThenAsync` for chaining together operations with short-circuit capability
-* `mapValue` and `mapError` methods for transforming types
+* `andThen`, `andThenSuccess`, `andThenAsync`, `andThenSuccessAsync` for chaining together operations with short-circuit capability
+* `mapValue`, `mapError`, `errorCast` methods for transforming success and failure types
 * `match` method for performing different operations on a success or failure
 monad
 * `fold` method for transforming the monad into a new result type with different
@@ -26,7 +26,7 @@ In the `pubspec.yaml` of your Dart/Flutter project, add the following dependency
 
 ```yaml
 dependencies:
-  result_monad: ^1.0.2
+  result_monad: ^2.0.0
 ```
 
 In your source code add the following import:
@@ -36,6 +36,8 @@ import 'package:result_monad/result_monad.dart';
 ```
 
 ## Usage
+
+Below is a simple example but see the repository for feature rich versions: 
 
 ```dart
 import 'package:result_monad/result_monad.dart';
