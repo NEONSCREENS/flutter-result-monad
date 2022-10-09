@@ -206,6 +206,31 @@ class Result<T, E> {
     return Result.error(newError);
   }
 
+  /// Maps from an error monad with one return type to another. This is for
+  /// cases where you know you got an error result of the same type that you
+  /// want to propagate up but whose success type is different.
+  ///
+  ///
+  /// ```dart
+  /// Result<int,String> someFunction1 () {...}
+  ///
+  /// Result<String,String> someFunction2() {
+  ///   final result1 = someFunction1();
+  ///   if (resul1.isFailure) {
+  ///     return result1.errorCast();
+  ///   }
+  ///
+  ///   ...
+  /// }
+  /// ```
+  Result<T2, E> errorCast<T2>() {
+    if (isSuccess) {
+      throw ResultMonadException.accessSuccessOnFailure();
+    }
+
+    return Result.error(_error);
+  }
+
   /// Maps from a monad from one result type to another. This is useful for
   /// transforming from error mappings between APIs etc.
   ///

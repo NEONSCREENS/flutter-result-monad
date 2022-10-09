@@ -413,6 +413,12 @@ void main() {
       final mapped = success.mapError((error) => 'error2');
       expect(mapped.value, equals(success.value));
     });
+
+    test('Test mapping different success type', () {
+      final result1 = Result<int, String>.error('An int error');
+      final Result<String, String> result2 = result1.errorCast();
+      expect(result2.error, equals(result2.error));
+    });
   });
 
   group('Test mapValue', () {
