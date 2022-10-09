@@ -8,9 +8,9 @@ void main() async {
           onSuccess: (value) => print(value), onError: (error) => print(error));
 
   final tempPath = await generateNewName()
-      .andThen((filename) => Result.ok(filename.replaceAll('-', '_')))
-      .andThen((filename) => Result.ok(filename.replaceAll(':', '_')))
-      .andThen((filename) => Result.ok(filename.replaceAll(' ', '_')))
+      .andThenSuccess((filename) => filename.replaceAll('-', '_'))
+      .andThenSuccess((filename) => filename.replaceAll(':', '_'))
+      .andThenSuccess((filename) => filename.replaceAll(' ', '_'))
       .andThen((filename) => filename.contains('-') ||
               filename.contains(' ') ||
               filename.contains(':')

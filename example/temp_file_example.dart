@@ -34,9 +34,9 @@ Result<File, ErrorEnum> getTempFile(
     {String prefix = '', String suffix = '.tmp'}) {
   String tmpName = '$prefix${DateTime.now().millisecondsSinceEpoch}$suffix';
   return getTempFolder()
-      .andThen((tempFolder) =>
-          Result.ok('$tempFolder${Platform.pathSeparator}$tmpName'))
-      .andThen((tmpPath) => Result.ok(File(tmpPath)))
+      .andThenSuccess(
+          (tempFolder) => '$tempFolder${Platform.pathSeparator}$tmpName')
+      .andThenSuccess((tmpPath) => File(tmpPath))
       .mapError((error) => error is ErrorEnum ? error : ErrorEnum.fileAccess);
 }
 
