@@ -11,6 +11,7 @@ various aspects of the implementation for this library.
 * Result Monad with standard `ok` and `error` constructors
 * Methods/properties for directly querying if it is encapsulating a success 
 or failure result and to get those values
+* `runCatching` and `runCatchingAsync` to encapsulate thrown exception objects into error Results
 * `getValueOrElse` and `getErrorOrElse` methods to return a default value if 
 it is not the respective desired monad
 * `andThen`, `andThenSuccess`, `andThenAsync`, `andThenSuccessAsync` for chaining together operations with short-circuit capability
@@ -26,7 +27,7 @@ In the `pubspec.yaml` of your Dart/Flutter project, add the following dependency
 
 ```yaml
 dependencies:
-  result_monad: ^2.0.0
+  result_monad: ^2.0.1
 ```
 
 In your source code add the following import:

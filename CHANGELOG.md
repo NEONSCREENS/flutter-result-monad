@@ -1,3 +1,6 @@
+## 2.0.1
+- Tweaks to the README only.
+
 ## 2.0.0
 - Allow nullable types for success and failure types
 - Add `andThenSuccess` and `andThenSuccessAsync` methods for allowing returning results without explicit `Result.ok` wrapping to allow more concise syntax
