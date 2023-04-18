@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:result_monad/result_monad.dart';
 
 final t = Duration(milliseconds: 100);
+
 Future<void> main() async {
   print('Simplified Async Syntax Example');
 
@@ -11,6 +12,7 @@ Future<void> main() async {
       .andThenAsync((y) async => Result.ok(await ds(() => y + 1)))
       .andThenSuccessAsync(
           (y) async => ds(() => List.generate(y, (index) => index)))
+      .withResultAsync((y) async => print('Has ${y.length} elements'))
       .andThenSuccessAsync((y) async => ds(() => y.toString()))
       .fold(
         onSuccess: (value) => 'Succeeded! $value',
@@ -22,6 +24,7 @@ Future<void> main() async {
       .andThenAsync((y) async => Result.ok(await ds(() => y + 1)))
       .andThenSuccessAsync(
           (y) async => ds(() => List.generate(y, (index) => index)))
+      .withResultAsync((y) async => print('Has ${y.length} elements'))
       .andThenAsync((p0) async {
         return Result.error('Bad result: $p0');
       })

@@ -1,4 +1,4 @@
-A Dart implementation of the Result Monad found in Rust and other languages. 
+A Dart implementation of the Result Monad found in Rust and other languages.
 This models either success (ok) or failure (error) of operations to allow for
 more expressive result generation and processing without using exceptions.
 
@@ -9,17 +9,20 @@ various aspects of the implementation for this library.
 ## Features
 
 * Result Monad with standard `ok` and `error` constructors
-* Methods/properties for directly querying if it is encapsulating a success 
-or failure result and to get those values
+* Methods/properties for directly querying if it is encapsulating a success
+  or failure result and to get those values
 * `runCatching` and `runCatchingAsync` to encapsulate thrown exception objects into error Results
-* `getValueOrElse` and `getErrorOrElse` methods to return a default value if 
-it is not the respective desired monad
-* `andThen`, `andThenSuccess`, `andThenAsync`, `andThenSuccessAsync` for chaining together operations with short-circuit capability
+* `getValueOrElse` and `getErrorOrElse` methods to return a default value if
+  it is not the respective desired monad
+* `andThen`, `andThenSuccess`, `andThenAsync`, `andThenSuccessAsync` for chaining together
+  operations with short-circuit capability
+* `withResult` and `withResultAsync` for processing results in a pass-through capability with
+  short-circuiting on thrown exceptions
 * `mapValue`, `mapError`, `errorCast` methods for transforming success and failure types
 * `match` method for performing different operations on a success or failure
-monad
+  monad
 * `fold` method for transforming the monad into a new result type with different
-logic for 
+  logic for
 
 ## Getting started
 
@@ -38,7 +41,7 @@ import 'package:result_monad/result_monad.dart';
 
 ## Usage
 
-Below is a simple example but see the repository for feature rich versions: 
+Below is a simple example but see the repository for feature rich versions:
 
 ```dart
 import 'package:result_monad/result_monad.dart';
@@ -48,7 +51,7 @@ Result<double, String> invert(double value) {
     return Result.error('Cannot invert zero');
   }
 
-  return Result.ok(1.0/value);
+  return Result.ok(1.0 / value);
 }
 
 void main() {
@@ -66,7 +69,7 @@ void main() {
 
 ## Additional information
 
-This result monad implementation takes inspiration from the 
+This result monad implementation takes inspiration from the
 [Rust result type](https://doc.rust-lang.org/std/result/index.html)
 and the [Kotlin Result](https://github.com/michaelbull/kotlin-result)
 implementation of the Result Monad.

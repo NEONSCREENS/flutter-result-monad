@@ -44,11 +44,12 @@ void main() {
     });
 
     test('Confirm result exception catching flow', () async {
-      final result = await Result<String?, dynamic>.ok(null)
-          .andThenAsync((s) async => Result.ok(s!.length))
+      final result = await Result<String?, dynamic>.ok('Hello')
+          .andThenAsync((s) async => Result.ok('$s World'))
+          .andThenAsync((s) async => Result.ok(s[s.length + 1]))
           .andThenAsync((s) async => Result.ok('Complete'));
       expect(result.isFailure, true);
-      expect(result.error, isA<TypeError>());
+      expect(result.error, isA<RangeError>());
     });
   });
 
@@ -90,11 +91,44 @@ void main() {
     });
 
     test('Confirm result exception catching flow', () async {
-      final result = await Result<String?, dynamic>.ok(null)
-          .andThenSuccessAsync((s) async => s!.length)
+      final result = await Result<String?, dynamic>.ok('Hello')
+          .andThenSuccessAsync((s) async => '$s World')
+          .andThenSuccessAsync((s) async => s[s.length + 1])
           .andThenSuccessAsync((s) async => 'Complete');
       expect(result.isFailure, true);
-      expect(result.error, isA<TypeError>());
+      expect(result.error, isA<RangeError>());
+    });
+  });
+
+  group('Test withResultAsync', () {
+    test('Test simple pass through', () async {
+      var resultString1 = '';
+      final result = await Result.ok('Success')
+          .andThenSuccessAsync((p0) async => p0)
+          .withResultAsync((value) async => resultString1 = value);
+      expect(result.value, equals('Success'));
+      expect(resultString1, equals('Success'));
+    });
+    test('Test error skips', () async {
+      var resultString1 = 'Skipped';
+      final result = await Result.error('Error')
+          .andThenSuccessAsync((p0) async => p0)
+          .withResultAsync((value) => resultString1 = value);
+      expect(result.isFailure, equals(true));
+      expect(resultString1, equals('Skipped'));
+    });
+    test('Test pass through mutation does not propagate', () async {
+      final result = await Result.ok('Success')
+          .andThenSuccessAsync((p0) async => p0)
+          .withResultAsync((value) async => value = 'Hello');
+      expect(result.value, equals('Success'));
+    });
+    test('Test exception thrown generates propagated error', () async {
+      final result = await Result.ok('Success')
+          .andThenSuccessAsync((p0) async => p0)
+          .withResultAsync((value) async => throw Exception('Error'));
+      expect(result.isFailure, equals(true));
+      expect(result.error.message, equals('Error'));
     });
   });
 

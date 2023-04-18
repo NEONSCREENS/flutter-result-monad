@@ -435,6 +435,11 @@ void main() {
       final Result<String, String> result2 = result1.errorCast();
       expect(result2.error, equals(result2.error));
     });
+
+    test('Test fails when trying to map a success type with errorCast', () {
+      final result1 = Result<int, String>.ok(1);
+      expect(() => result1.errorCast(), throwsA(isA<ResultMonadException>()));
+    });
   });
 
   group('Test mapValue', () {
@@ -472,6 +477,62 @@ void main() {
       final error = Result<String?, String?>.error(null);
       final mapped = error.mapValue((value) => 'Success2!');
       expect(mapped.error, equals(error.error));
+    });
+  });
+
+  group('Test withResult', () {
+    test('Test simple pass through', () {
+      var resultString1 = '';
+      final result =
+          Result.ok('Success').withResult((value) => resultString1 = value);
+      expect(result.value, equals('Success'));
+      expect(resultString1, equals('Success'));
+    });
+    test('Test error skips', () {
+      var resultString1 = 'Skipped';
+      final result =
+          Result.error('Error').withResult((value) => resultString1 = value);
+      expect(result.isFailure, equals(true));
+      expect(resultString1, equals('Skipped'));
+    });
+    test('Test pass through mutation does not propagate', () {
+      final result =
+          Result.ok('Success').withResult((value) => value = 'Hello');
+      expect(result.value, equals('Success'));
+    });
+    test('Test exception thrown generates propagated error', () {
+      final result =
+          Result.ok('Success').withResult((value) => throw Exception('Error'));
+      expect(result.isFailure, equals(true));
+      expect(result.error.message, equals('Error'));
+    });
+  });
+
+  group('Test withResultAsync', () {
+    test('Test simple pass through', () async {
+      var resultString1 = '';
+      final result = await Result.ok('Success')
+          .withResultAsync((value) async => resultString1 = value);
+      expect(result.value, equals('Success'));
+      expect(resultString1, equals('Success'));
+    });
+    test('Test error skips', () async {
+      var resultString1 = 'Skipped';
+      final result = await Result.error('Error')
+          .withResultAsync((value) => resultString1 = value);
+      expect(result.isFailure, equals(true));
+      expect(resultString1, equals('Skipped'));
+    });
+    test('Test pass through mutation does not propagate', () async {
+      final result = await Result.ok('Success')
+          .withResultAsync((value) async => value = 'Hello');
+      expect(result.value, equals('Success'));
+    });
+    test('Test exception thrown generates propagated error', () async {
+      final result = await Result.ok('Success')
+          .withResultAsync((value) async => throw Exception('Error'));
+      expect(result.isFailure, equals(true));
+      expect(result.error.message, equals('Error'));
     });
   });
 
