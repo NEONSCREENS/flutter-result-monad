@@ -44,11 +44,12 @@ void main() {
     });
 
     test('Confirm result exception catching flow', () async {
-      final result = await Result<String?, dynamic>.ok(null)
-          .andThenAsync((s) async => Result.ok(s!.length))
+      final result = await Result<String?, dynamic>.ok('Hello')
+          .andThenAsync((s) async => Result.ok('$s World'))
+          .andThenAsync((s) async => Result.ok(s[s.length + 1]))
           .andThenAsync((s) async => Result.ok('Complete'));
       expect(result.isFailure, true);
-      expect(result.error, isA<TypeError>());
+      expect(result.error, isA<RangeError>());
     });
   });
 
@@ -90,11 +91,12 @@ void main() {
     });
 
     test('Confirm result exception catching flow', () async {
-      final result = await Result<String?, dynamic>.ok(null)
-          .andThenSuccessAsync((s) async => s!.length)
+      final result = await Result<String?, dynamic>.ok('Hello')
+          .andThenSuccessAsync((s) async => '$s World')
+          .andThenSuccessAsync((s) async => s[s.length + 1])
           .andThenSuccessAsync((s) async => 'Complete');
       expect(result.isFailure, true);
-      expect(result.error, isA<TypeError>());
+      expect(result.error, isA<RangeError>());
     });
   });
 
