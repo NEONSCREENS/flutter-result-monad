@@ -435,6 +435,11 @@ void main() {
       final Result<String, String> result2 = result1.errorCast();
       expect(result2.error, equals(result2.error));
     });
+
+    test('Test fails when trying to map a success type with errorCast', () {
+      final result1 = Result<int, String>.ok(1);
+      expect(() => result1.errorCast(), throwsA(isA<ResultMonadException>()));
+    });
   });
 
   group('Test mapValue', () {
