@@ -1,3 +1,6 @@
+## 2.1.0
+- Add pass through methods `withResult` and `withResultAsync` on Result and Future extension method
+
 ## 2.0.2
 - Add exception catching on `addThen` and `addThenSuccess` and FutureResult extension methods.
 
