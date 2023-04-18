@@ -271,6 +271,57 @@ class Result<T, E> {
     onError(_error!);
   }
 
+  /// Executes the anonymous function passing the current value to it to support
+  /// operation chaining but as a pass-through process. The original result object
+  /// is automatically passed on to the next chain *unchanged* nor is it possible
+  /// to pass on a new result type like with the "andThen" methods.
+  ///
+  /// Example:
+  /// ```dart
+  /// return doSomething()
+  ///   .andThen((r1) => r1.doSomething1())
+  ///   .with((r2) => print(r2))
+  ///   .andThen((r2) => r2.doSomething3())
+  /// ```
+  Result<T, dynamic> withResult(Function(T) withFunction) {
+    if (isSuccess) {
+      try {
+        withFunction(_value);
+        return Result.ok(_value);
+      } catch (e) {
+        return Result.error(e);
+      }
+    }
+
+    return Result.error(_error);
+  }
+
+  /// Executes the anonymous function passing the current value to it to support
+  /// operation chaining but as a pass-through process. The original result object
+  /// is automatically passed on to the next chain *unchanged* nor is it possible
+  /// to pass on a new result type like with the "andThen" methods.
+  ///
+  /// Example:
+  /// ```dart
+  /// return doSomething()
+  ///   .andThen((r1) => r1.doSomething1())
+  ///   .withAsync((r2) => print(r2))
+  ///   .andThen((r2) => r2.doSomething3())
+  /// ```
+  FutureResult<T, dynamic> withResultAsync(Future<void> Function(T) withFunction) async {
+    if (isSuccess) {
+      try {
+        await withFunction(_value);
+        return Result.ok(_value);
+      } catch (e) {
+        return Result.error(e);
+      }
+    }
+
+    return Result.error(_error);
+  }
+
+
   @override
   String toString() {
     return isSuccess ? 'ok($_value)' : 'error($_error)';

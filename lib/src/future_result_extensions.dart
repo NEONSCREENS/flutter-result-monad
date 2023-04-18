@@ -29,6 +29,21 @@ extension FutureResultExtension<T, E> on Future<Result<T, E>> {
     }
   }
 
+  FutureResult<T, dynamic> withResultAsync(
+      Future<void> Function(T) withFunction) async {
+    try {
+      final thisResult = await this;
+      if (thisResult.isFailure) {
+        return Result.error(thisResult.error);
+      }
+
+      await withFunction(thisResult.value);
+      return Result.ok(thisResult.value);
+    } catch (e) {
+      return Result.error(e);
+    }
+  }
+
   Future<void> match(
       {required Function(T value) onSuccess,
       required Function(E error) onError}) async {
