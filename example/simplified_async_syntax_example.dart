@@ -10,10 +10,9 @@ Future<void> main() async {
   print('Showing result propagation');
   print(await Result.ok(await ds(() => 1))
       .andThenAsync((y) async => Result.ok(await ds(() => y + 1)))
-      .andThenSuccessAsync(
-          (y) async => ds(() => List.generate(y, (index) => index)))
+      .transformAsync((y) async => ds(() => List.generate(y, (index) => index)))
       .withResultAsync((y) async => print('Has ${y.length} elements'))
-      .andThenSuccessAsync((y) async => ds(() => y.toString()))
+      .transformAsync((y) async => ds(() => y.toString()))
       .fold(
         onSuccess: (value) => 'Succeeded! $value',
         onError: (error) => 'Error! $error',
@@ -22,13 +21,12 @@ Future<void> main() async {
   print('Showing same as above but with error propagation');
   print(await Result.ok(await ds(() => 1))
       .andThenAsync((y) async => Result.ok(await ds(() => y + 1)))
-      .andThenSuccessAsync(
-          (y) async => ds(() => List.generate(y, (index) => index)))
+      .transformAsync((y) async => ds(() => List.generate(y, (index) => index)))
       .withResultAsync((y) async => print('Has ${y.length} elements'))
       .andThenAsync((p0) async {
         return Result.error('Bad result: $p0');
       })
-      .andThenSuccessAsync((y) async => ds(() => y.toString()))
+      .transformAsync((y) async => ds(() => y.toString()))
       .fold(
         onSuccess: (value) => 'Succeeded! $value',
         onError: (error) => 'Error! $error',

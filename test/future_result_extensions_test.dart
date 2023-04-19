@@ -53,6 +53,53 @@ void main() {
     });
   });
 
+  group('Test transformAsync', () {
+    test('Confirm basic flow', () async {
+      final result =
+          await Result.ok(1).transformAsync((p0) async => ds(() => p0 + 2));
+      expect(result.isSuccess, true);
+      expect(result.value, equals(3));
+    });
+
+    test('Confirm result type transformation flow', () async {
+      final result = await Result.ok(1)
+          .transformAsync((p0) async => ds(() => p0 + 2))
+          .transformAsync((p0) async => p0.toString());
+      expect(result.isSuccess, true);
+      expect(result.value, equals('3'));
+    });
+
+    test('Confirm result error transformation flow', () async {
+      const errorText = 'This is an error';
+      final result = await Result<int, int>.ok(1)
+          .transformAsync((p0) async => ds(() => p0 + 2))
+          .andThenAsync((p0) async => Result.error(errorText))
+          .transformAsync((p0) async => p0.toString());
+      expect(result.isFailure, true);
+      expect(result.error, equals(errorText));
+    });
+
+    test('Confirm result null propagation flow', () async {
+      final result1 = await Result<String?, dynamic>.ok('Hello')
+          .transformAsync((s) async => s?.length)
+          .transformAsync((s) async => s == null);
+      expect(result1.value, false);
+      final result2 = await Result<String?, dynamic>.ok(null)
+          .transformAsync((s) async => s?.length)
+          .transformAsync((s) async => s == null);
+      expect(result2.value, true);
+    });
+
+    test('Confirm result exception catching flow', () async {
+      final result = await Result<String?, dynamic>.ok('Hello')
+          .transformAsync((s) async => '$s World')
+          .transformAsync((s) async => s[s.length + 1])
+          .transformAsync((s) async => 'Complete');
+      expect(result.isFailure, true);
+      expect(result.error, isA<RangeError>());
+    });
+  });
+
   group('Test andThenSuccessAsync', () {
     test('Confirm basic flow', () async {
       final result = await Result.ok(1)

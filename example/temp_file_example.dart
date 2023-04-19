@@ -20,10 +20,10 @@ void main(List<String> arguments) {
   // Probably would check if failure and stop here normally but want to show
   // that even starting with an error Result Monad flows correctly.
   final writtenSuccessfully = tmpFileResult
-      .andThen((file) => runCatching(() {
-            file.writeAsStringSync(stringToWrite);
-            return Result.ok(file);
-          }))
+      .andThen((file) {
+        file.writeAsStringSync(stringToWrite);
+        return Result.ok(file);
+      })
       .andThen((file) => runCatching(() => Result.ok(file.readAsStringSync())))
       .fold(onSuccess: (text) => text == stringToWrite, onError: (_) => false);
 
@@ -34,9 +34,8 @@ Result<File, ErrorEnum> getTempFile(
     {String prefix = '', String suffix = '.tmp'}) {
   String tmpName = '$prefix${DateTime.now().millisecondsSinceEpoch}$suffix';
   return getTempFolder()
-      .andThenSuccess(
-          (tempFolder) => '$tempFolder${Platform.pathSeparator}$tmpName')
-      .andThenSuccess((tmpPath) => File(tmpPath))
+      .transform((tempFolder) => '$tempFolder${Platform.pathSeparator}$tmpName')
+      .transform((tmpPath) => File(tmpPath))
       .mapError((error) => error is ErrorEnum ? error : ErrorEnum.fileAccess);
 }
 

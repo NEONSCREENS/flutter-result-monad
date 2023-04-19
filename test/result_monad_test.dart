@@ -253,6 +253,50 @@ void main() {
     });
   });
 
+  group('Test transform', () {
+    test('Test chaining through to end', () async {
+      final result = Result.ok('Success')
+          .transform((value) => value.length)
+          .transform((value) => 'Original string length: $value');
+      expect(result.value, equals('Original string length: 7'));
+    });
+
+    test('Test chaining through to end with nullable type', () async {
+      final result = Result<String?, int>.ok('Success')
+          .transform((value) => value?.length ?? -1)
+          .transform((value) => 'Original string length: $value');
+      expect(result.value, equals('Original string length: 7'));
+
+      final result2 = Result<String?, int>.ok(null)
+          .transform((value) => value?.length ?? -1)
+          .transform((value) => 'Original string length: $value');
+      expect(result2.value, equals('Original string length: -1'));
+    });
+
+    test('Test starting with failure', () async {
+      final initial = Result.error('failed!');
+      final result = initial
+          .transform((value) => value.length)
+          .transform((value) => 'Original string length: $value');
+      expect(result.error, equals(initial.error));
+    });
+
+    test('Test chaining with short circuit', () async {
+      final result = Result.ok('Success')
+          .andThen((value) => Result.error('error'))
+          .transform((value) => 'Original string length: $value');
+      expect(result.error, equals('error'));
+    });
+
+    test('Test chaining with exception shortcut', () async {
+      final arr = [1, 2, 3];
+      final result = Result.ok('Success')
+          .transform((value) => arr[arr.length + 1])
+          .transform((value) => '$value');
+      expect(result.error, isA<RangeError>());
+    });
+  });
+
   group('Test andThenSuccess', () {
     test('Test chaining through to end', () async {
       final result = Result.ok('Success')
@@ -388,6 +432,49 @@ void main() {
               .andThenSuccessAsync((value) async => throw FormatException()))
           .andThenSuccessAsync(
               (value) async => 'Original string length: $value');
+      expect(result.isFailure, true);
+      expect(result.error, isA<FormatException>());
+    });
+  });
+
+  group('Test transformAsync', () {
+    test('Test success result', () async {
+      final result = await (await Result.ok('Success')
+              .transformAsync((value) async => value.length))
+          .transformAsync((value) async => 'Original string length: $value');
+      expect(result.value, equals('Original string length: 7'));
+    });
+
+    test('Test success result with nullable', () async {
+      final result = await (await Result<String?, int>.ok('Success')
+              .transformAsync((value) async => value?.length ?? -1))
+          .transformAsync((value) async => 'Original string length: $value');
+      expect(result.value, equals('Original string length: 7'));
+
+      final result2 = await (await Result<String?, int>.ok(null)
+              .transformAsync((value) async => value?.length ?? -1))
+          .transformAsync((value) async => 'Original string length: $value');
+      expect(result2.value, equals('Original string length: -1'));
+    });
+
+    test('Test starting with failure', () async {
+      final initial = Result.error('failed!');
+      final result =
+          await initial.transformAsync((value) async => value.length);
+      expect(result.error, equals(initial.error));
+    });
+
+    test('Test chaining with short circuit', () async {
+      final result = await (await Result.ok('Success')
+              .andThenAsync((value) async => Result.error('error')))
+          .transformAsync((value) async => 'Original string length: $value');
+      expect(result.error, equals('error'));
+    });
+
+    test('Test chaining with exception short circuit', () async {
+      final result = await (await Result.ok('Success')
+              .transformAsync((value) async => throw FormatException()))
+          .transformAsync((value) async => 'Original string length: $value');
       expect(result.isFailure, true);
       expect(result.error, isA<FormatException>());
     });

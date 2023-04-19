@@ -14,7 +14,7 @@ various aspects of the implementation for this library.
 * `runCatching` and `runCatchingAsync` to encapsulate thrown exception objects into error Results
 * `getValueOrElse` and `getErrorOrElse` methods to return a default value if
   it is not the respective desired monad
-* `andThen`, `andThenSuccess`, `andThenAsync`, `andThenSuccessAsync` for chaining together
+* `andThen`, `transform`, `andThenAsync`, `transformAsync` for chaining together
   operations with short-circuit capability
 * `withResult` and `withResultAsync` for processing results in a pass-through capability with
   short-circuiting on thrown exceptions
@@ -30,7 +30,7 @@ In the `pubspec.yaml` of your Dart/Flutter project, add the following dependency
 
 ```yaml
 dependencies:
-  result_monad: ^2.0.2
+  result_monad: ^2.2.0
 ```
 
 In your source code add the following import:
@@ -41,7 +41,7 @@ import 'package:result_monad/result_monad.dart';
 
 ## Usage
 
-Below is a simple example but see the repository for feature rich versions:
+Below is a simple example but see [the repository](https://gitlab.com/HankG/dart-result-monad/-/tree/main/example) for feature rich versions:
 
 ```dart
 import 'package:result_monad/result_monad.dart';

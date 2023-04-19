@@ -5,12 +5,14 @@ void main() async {
       .andThen((user) => renameUser(user, "joseph stone"))
       .andThen((user) => validateUser(user))
       .match(
-          onSuccess: (value) => print(value), onError: (error) => print(error));
+        onSuccess: (value) => print(value),
+        onError: (error) => print(error),
+      );
 
   final tempPath = await generateNewName()
-      .andThenSuccess((filename) => filename.replaceAll('-', '_'))
-      .andThenSuccess((filename) => filename.replaceAll(':', '_'))
-      .andThenSuccess((filename) => filename.replaceAll(' ', '_'))
+      .transform((filename) => filename.replaceAll('-', '_'))
+      .transform((filename) => filename.replaceAll(':', '_'))
+      .transform((filename) => filename.replaceAll(' ', '_'))
       .andThen((filename) => filename.contains('-') ||
               filename.contains(' ') ||
               filename.contains(':')
