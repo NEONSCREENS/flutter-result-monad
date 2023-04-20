@@ -11,20 +11,15 @@ enum ErrorEnum { environment, fileAccess }
 
 void main(List<String> arguments) {
   final stringToWrite = 'Data written to the temp file ${DateTime.now()}';
-  final tmpFileResult = getTempFile();
-
-  tmpFileResult.match(
-      onSuccess: (file) => print('Temp file: ${file.path}'),
-      onError: (error) => print('Error getting temp file: $error'));
+  final tmpFileResult = getTempFile()
+      .withResult((file) => print('Temp file: ${file.path}'))
+      .withError((error) => print('Error getting temp file: $error'));
 
   // Probably would check if failure and stop here normally but want to show
   // that even starting with an error Result Monad flows correctly.
   final writtenSuccessfully = tmpFileResult
-      .andThen((file) {
-        file.writeAsStringSync(stringToWrite);
-        return Result.ok(file);
-      })
-      .andThen((file) => runCatching(() => Result.ok(file.readAsStringSync())))
+      .withResult((file) => file.writeAsStringSync(stringToWrite))
+      .transform((file) => file.readAsStringSync())
       .fold(onSuccess: (text) => text == stringToWrite, onError: (_) => false);
 
   print('Successfully wrote to temp file? $writtenSuccessfully');
@@ -32,7 +27,7 @@ void main(List<String> arguments) {
 
 Result<File, ErrorEnum> getTempFile(
     {String prefix = '', String suffix = '.tmp'}) {
-  String tmpName = '$prefix${DateTime.now().millisecondsSinceEpoch}$suffix';
+  final tmpName = '$prefix${DateTime.now().millisecondsSinceEpoch}$suffix';
   return getTempFolder()
       .transform((tempFolder) => '$tempFolder${Platform.pathSeparator}$tmpName')
       .transform((tmpPath) => File(tmpPath))

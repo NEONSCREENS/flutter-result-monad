@@ -25,41 +25,6 @@ whether we are dealing with a succeeded or failed result. See
 for more details.
 
 ```dart
-import 'package:result_monad/result_monad.dart';
-
-Result<double, String> invert(double value) {
-  if (value == 0) {
-    return Result.error('Cannot invert zero');
-  }
-
-  return Result.ok(1.0 / value);
-}
-
-void main() {
-  // Prints 'Inverse is: 0.5'
-  invert(2).match(
-      onSuccess: (value) => print("Inverse is: $value"),
-      onError: (error) => print(error));
-
-  // Prints 'Cannot invert zero'
-  invert(0).match(
-      onSuccess: (value) => print("Inverse is: $value"),
-      onError: (error) => print(error));
-}
-```
-
-## Intermediate Example: Temporary File Creation/Writing
-
-The example below is a larger example to show a more real world
-example. This program has methods for figuring out the temporary
-folder for the user and then creating a temporary file in that
-folder that the user can write to. It then attempts to write to
-that file. This shows how comprehensively one can use the various
-parts of the library, from the `runCatching` surrounding file I/O,
-to the mapError to create uniform return error types, and finally
-showing off `andThen` chaining and `fold` for final value extraction.
-
-```dart
 import 'dart:io';
 
 import 'package:result_monad/result_monad.dart';
@@ -68,20 +33,15 @@ enum ErrorEnum { environment, fileAccess }
 
 void main(List<String> arguments) {
   final stringToWrite = 'Data written to the temp file ${DateTime.now()}';
-  final tmpFileResult = getTempFile();
-
-  tmpFileResult.match(
-      onSuccess: (file) => print('Temp file: ${file.path}'),
-      onError: (error) => print('Error getting temp file: $error'));
+  final tmpFileResult = getTempFile()
+      .withResult((file) => print('Temp file: ${file.path}'))
+      .withError((error) => print('Error getting temp file: $error'));
 
   // Probably would check if failure and stop here normally but want to show
   // that even starting with an error Result Monad flows correctly.
   final writtenSuccessfully = tmpFileResult
-      .andThen((file) {
-        file.writeAsStringSync(stringToWrite);
-        return Result.ok(file);
-      })
-      .andThen((file) => runCatching(() => Result.ok(file.readAsStringSync())))
+      .withResult((file) => file.writeAsStringSync(stringToWrite))
+      .transform((file) => file.readAsStringSync())
       .fold(onSuccess: (text) => text == stringToWrite, onError: (_) => false);
 
   print('Successfully wrote to temp file? $writtenSuccessfully');
@@ -89,7 +49,7 @@ void main(List<String> arguments) {
 
 Result<File, ErrorEnum> getTempFile(
     {String prefix = '', String suffix = '.tmp'}) {
-  String tmpName = '$prefix${DateTime.now().millisecondsSinceEpoch}$suffix';
+  final tmpName = '$prefix${DateTime.now().millisecondsSinceEpoch}$suffix';
   return getTempFolder()
       .transform((tempFolder) => '$tempFolder${Platform.pathSeparator}$tmpName')
       .transform((tmpPath) => File(tmpPath))
