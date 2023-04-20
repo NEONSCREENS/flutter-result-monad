@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:result_monad/result_monad.dart';
 import 'package:test/test.dart';
 
@@ -208,7 +210,6 @@ void main() {
     });
   });
 
-  // simpler 'and then' tests
   group('Test andThen', () {
     test('Test chaining through to end', () async {
       final result = Result.ok('Success')
@@ -482,27 +483,24 @@ void main() {
 
   group('Test mapError', () {
     test('Test mapping of error same type', () {
-      final error1 = Result.error('error');
-      final error2 = error1.mapError((error) => 'error2');
-      expect(error2.error, equals('error2'));
+      final error = Result.error('error').mapError((error) => 'error2');
+      expect(error.error, equals('error2'));
     });
 
     test('Test mapping of error same type nullable', () {
-      final error1 = Result<String, String?>.error('error');
-      final error2 = error1.mapError((error) => 'error2');
-      expect(error2.error, equals('error2'));
+      final error = Result.error('error').mapError((error) => 'error2');
+      expect(error.error, equals('error2'));
     });
 
     test('Test mapping of error different type', () {
-      final error1 = Result.error('error');
-      final error2 = error1.mapError((error) => error.length);
-      expect(error2.error, equals(5));
+      final error = Result.error('error').mapError((error) => error.length);
+      expect(error.error, equals(5));
     });
 
     test('Test mapping of error different type nullable', () {
-      final error1 = Result<String, String?>.error(null);
-      final error2 = error1.mapError((error) => error?.length);
-      expect(error2.error, equals(null));
+      final error = Result<dynamic, String?>.error(null)
+          .mapError((error) => error?.length);
+      expect(error.error, equals(null));
     });
 
     test('Test mapping of success type', () {
@@ -520,7 +518,7 @@ void main() {
     test('Test mapping different success type', () {
       final result1 = Result<int, String>.error('An int error');
       final Result<String, String> result2 = result1.errorCast();
-      expect(result2.error, equals(result2.error));
+      expect(result2.error, equals(result1.error));
     });
 
     test('Test fails when trying to map a success type with errorCast', () {
@@ -531,27 +529,25 @@ void main() {
 
   group('Test mapValue', () {
     test('Test mapping of value same type', () {
-      final success = Result.ok('Success!');
-      final success2 = success.mapValue((value) => 'Success2!');
-      expect(success2.value, equals('Success2!'));
+      final success = Result.ok('Success!').mapValue((value) => 'Success2!');
+      expect(success.value, equals('Success2!'));
     });
 
     test('Test mapping of value same type nullable', () {
-      final success = Result<String?, int>.ok(null);
-      final success2 = success.mapValue((value) => 'Success2!');
-      expect(success2.value, equals('Success2!'));
+      final success =
+          Result<String?, int>.ok(null).mapValue((value) => 'Success2!');
+      expect(success.value, equals('Success2!'));
     });
 
     test('Test mapping of value different type', () {
-      final success = Result.ok('Success!');
-      final success2 = success.mapValue((value) => value.length);
-      expect(success2.value, equals(8));
+      final success = Result.ok('Success!').mapValue((value) => value.length);
+      expect(success.value, equals(8));
     });
 
     test('Test mapping of value different type nullable', () {
-      final success = Result<String?, String>.ok(null);
-      final success2 = success.mapValue((value) => value?.length);
-      expect(success2.value, equals(null));
+      final success =
+          Result<String?, String>.ok(null).mapValue((value) => value?.length);
+      expect(success.value, equals(null));
     });
 
     test('Test mapping of error type', () {
@@ -575,6 +571,7 @@ void main() {
       expect(result.value, equals('Success'));
       expect(resultString1, equals('Success'));
     });
+
     test('Test error skips', () {
       var resultString1 = 'Skipped';
       final result =
@@ -582,11 +579,13 @@ void main() {
       expect(result.isFailure, equals(true));
       expect(resultString1, equals('Skipped'));
     });
+
     test('Test pass through mutation does not propagate', () {
       final result =
           Result.ok('Success').withResult((value) => value = 'Hello');
       expect(result.value, equals('Success'));
     });
+
     test('Test exception thrown generates propagated error', () {
       final result =
           Result.ok('Success').withResult((value) => throw Exception('Error'));
@@ -603,6 +602,7 @@ void main() {
       expect(result.value, equals('Success'));
       expect(resultString1, equals('Success'));
     });
+
     test('Test error skips', () async {
       var resultString1 = 'Skipped';
       final result = await Result.error('Error')
@@ -610,16 +610,93 @@ void main() {
       expect(result.isFailure, equals(true));
       expect(resultString1, equals('Skipped'));
     });
+
     test('Test pass through mutation does not propagate', () async {
       final result = await Result.ok('Success')
           .withResultAsync((value) async => value = 'Hello');
       expect(result.value, equals('Success'));
     });
+
     test('Test exception thrown generates propagated error', () async {
       final result = await Result.ok('Success')
           .withResultAsync((value) async => throw Exception('Error'));
       expect(result.isFailure, equals(true));
       expect(result.error.message, equals('Error'));
+    });
+  });
+
+  group('Test withError', () {
+    test('Test simple pass through', () {
+      var resultString1 = '';
+      final result =
+          Result.error('Error').withError((value) => resultString1 = value);
+      expect(result.error, equals('Error'));
+      expect(resultString1, equals('Error'));
+    });
+    test('Test success skips', () {
+      var resultString1 = 'Skipped';
+      final result =
+          Result.ok('Success').withError((value) => resultString1 = value);
+      expect(result.isSuccess, equals(true));
+      expect(resultString1, equals('Skipped'));
+    });
+    test('Test pass through mutation does not propagate', () {
+      final result =
+          Result.error('Error').withError((value) => value = 'Hello');
+      expect(result.error, equals('Error'));
+    });
+    test('Test exception thrown generates propagated error or new type', () {
+      final result = Result.error('Error')
+          .withError((value) => throw Exception('New Error'));
+      expect(result.isFailure, equals(true));
+      expect(result.error.message, equals('New Error'));
+    });
+  });
+
+  group('Test withErrorAsync', () {
+    test('Test simple pass through', () async {
+      var resultString1 = '';
+      final result = await Result.error('Error')
+          .withErrorAsync((value) async => resultString1 = value);
+      expect(result.error, equals('Error'));
+      expect(resultString1, equals('Error'));
+    });
+    test('Test success skips', () async {
+      var resultString1 = 'Skipped';
+      final result = await Result.ok('Success')
+          .withErrorAsync((value) async => resultString1 = value);
+      expect(result.isSuccess, equals(true));
+      expect(resultString1, equals('Skipped'));
+    });
+    test('Test pass through mutation does not propagate', () async {
+      final result = await Result.error('Error')
+          .withErrorAsync((value) async => value = 'Hello');
+      expect(result.error, equals('Error'));
+    });
+    test('Test exception thrown generates propagated error or new type',
+        () async {
+      final result = await Result.error('Error')
+          .withErrorAsync((value) async => throw Exception('New Error'));
+      expect(result.isFailure, equals(true));
+      expect(result.error.message, equals('New Error'));
+    });
+  });
+
+  group('Test Async Chaining', () {
+    test('Linear', () async {
+      final result = await Result.ok('')
+          .andThenAsync((b) async => Result.ok(await asyncWork('1:')))
+          .andThen((b) => Result.ok(work('${b}2:')))
+          .transform((b) => work('${b}3:'))
+          .transformAsync((b) async => await asyncWork('${b}4:'))
+          .transform((s) => s
+              .split('\n')
+              .map((l) => l.split(':').first)
+              .where((e) => e.isNotEmpty)
+              .map((i) => int.parse(i))
+              .toList())
+          .withResult((r) => expect(r, equals([1, 2, 3, 4])));
+      expect(result.isSuccess, equals(true));
     });
   });
 
@@ -635,3 +712,10 @@ void main() {
     });
   });
 }
+
+String work(String base) => '$base @ ${DateTime.now()}\n';
+
+Future<String> asyncWork(String base) async => Future.delayed(
+      Duration(milliseconds: Random().nextInt(100)),
+      () async => work(base),
+    );
