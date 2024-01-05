@@ -18,6 +18,8 @@ various aspects of the implementation for this library.
   operations with short-circuit capability
 * `withResult` and `withResultAsync` for processing results in a pass-through capability with
   short-circuiting on thrown exceptions
+* `withError` and `withErrorAsync` for processing errors in a pass-through capability with
+  short-circuiting on thrown exceptions
 * `mapValue`, `mapError`, `errorCast` methods for transforming success and failure types
 * `match` method for performing different operations on a success or failure
   monad
