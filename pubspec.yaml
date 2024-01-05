@@ -4,7 +4,7 @@ version: 2.3.0
 homepage: https://gitlab.com/HankG/dart-result-monad
 
 environment:
-  sdk: '>=2.14.4 <3.0.0'
+  sdk: '>=2.14.4 <4.0.0'
 
 dev_dependencies:
   lints: ^1.0.1
