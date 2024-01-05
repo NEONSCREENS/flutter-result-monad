@@ -1,4 +1,9 @@
+## 2.3.1
+
+- Tweak to README to include `withError` and `withErrorAsync`
+- 
 ## 2.3.0
+
 - Examples and documentation updates for the new syntax.
 - Add to `FutureResult`: `andThen`, `errorCast`, `mapError`, `mapValue`, `withResult`, `withError`, `match`, `fold`
 - Add `withError` to Result and `withError` and `withErrorAsync` to `FutureResult`
