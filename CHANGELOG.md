@@ -1,7 +1,7 @@
-## 2.2.0
-
-- Rename `andThenSuccess` and `andThenSuccessAsync` to `transform` and `transformAsync`. Old method names will be kept
-  for backward compatibility but de-emphasized in examples and documentation.
+## 2.3.0
+- Examples and documentation updates for the new syntax.
+- Add to `FutureResult`: `andThen`, `errorCast`, `mapError`, `mapValue`, `withResult`, `withError`, `match`, `fold`
+- Add `withError` to Result and `withError` and `withErrorAsync` to `FutureResult`
 
 ## 2.1.0
 
