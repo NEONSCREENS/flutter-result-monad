@@ -1,14 +1,13 @@
-/// Illustrates are more real world comprehensive use of the library with
-/// an example of a function that returns a temporary file in the OS
-/// specified temporary directory and then attempting to write into that file.
-///
-///
 import 'dart:io';
 
 import 'package:result_monad/result_monad.dart';
 
 enum ErrorEnum { environment, fileAccess }
 
+/// Illustrates a more real world comprehensive use of the library with
+/// an example of a function that returns a temporary file in the OS
+/// specified temporary directory and then attempting to write into that file.
+///
 void main(List<String> arguments) {
   final stringToWrite = 'Data written to the temp file ${DateTime.now()}';
   final tmpFileResult = getTempFile()

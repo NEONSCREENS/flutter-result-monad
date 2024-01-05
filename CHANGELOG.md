@@ -1,7 +1,11 @@
+## 2.3.2
+
+- Tweak to documentation headers to avoid lint error
+
 ## 2.3.1
 
 - Tweak to README to include `withError` and `withErrorAsync`
-- 
+
 ## 2.3.0
 
 - Examples and documentation updates for the new syntax.

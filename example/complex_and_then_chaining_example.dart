@@ -22,7 +22,7 @@ void main() async {
     final tempDir = await getTemporaryDirectory();
     return tempDir.isEmpty
         ? Result.error('Empty result for tempdir')
-        : Result.ok('${tempDir}/$filename');
+        : Result.ok('$tempDir/$filename');
   });
 
   tempPath.match(

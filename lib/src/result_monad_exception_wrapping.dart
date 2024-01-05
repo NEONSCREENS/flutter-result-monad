@@ -1,7 +1,7 @@
-/// Allows library users to wrap potential exception throwing code in a way that
-/// transnforms thrown exception objects into a failure monad
 import '../result_monad.dart';
 
+/// Allows library users to wrap potential exception throwing code in a way that
+/// transforms thrown exception objects into a failure monad.
 /// Runs the passed in function catching any thrown error objects and returning
 /// it as a result monad.
 ///

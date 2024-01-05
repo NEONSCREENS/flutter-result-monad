@@ -32,7 +32,7 @@ In the `pubspec.yaml` of your Dart/Flutter project, add the following dependency
 
 ```yaml
 dependencies:
-  result_monad: ^2.3.1
+  result_monad: ^2.3.2
 ```
 
 In your source code add the following import:
