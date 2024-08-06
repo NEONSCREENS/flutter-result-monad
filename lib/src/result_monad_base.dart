@@ -13,13 +13,13 @@ class Result<T, E> {
 
   /// Create a new Result of the expected error type with the error value
   /// `Result<int,String> getErrorValue() => Result.error('This is an error');`
-  Result.error(E error)
+  const Result.error(E error)
       : _error = error,
         _isSuccess = false;
 
   /// Create a new Result of the expected success type with the success value
   /// `Result<int,String> getSuccess() => Result.ok(10);`
-  Result.ok(T success)
+  const Result.ok(T success)
       : _value = success,
         _isSuccess = true;
 
