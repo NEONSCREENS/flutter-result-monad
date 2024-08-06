@@ -7,21 +7,20 @@ typedef FutureResult<T, E> = Future<Result<T, E>>;
 /// The Result Monad type which will encapsulate a success (ok) value of type T
 /// or a failure (error) value of type E
 class Result<T, E> {
-  late final T _value;
-  late final E _error;
-  final bool _isSuccess;
+  final T? _value;
+  final E? _error;
 
   /// Create a new Result of the expected error type with the error value
   /// `Result<int,String> getErrorValue() => Result.error('This is an error');`
   const Result.error(E error)
       : _error = error,
-        _isSuccess = false;
+        _value = null;
 
   /// Create a new Result of the expected success type with the success value
   /// `Result<int,String> getSuccess() => Result.ok(10);`
   const Result.ok(T success)
       : _value = success,
-        _isSuccess = true;
+        _error = null;
 
   /// Returns the error if it is a failure Result Monad otherwise throws
   /// [ResultMonadException]. It is best to check that it is a failure monad
@@ -31,14 +30,14 @@ class Result<T, E> {
       throw ResultMonadException.accessFailureOnSuccess();
     }
 
-    return _error;
+    return _error!;
   }
 
   /// Returns true if the Result Monad has a failure value, false otherwise
-  bool get isFailure => !_isSuccess;
+  bool get isFailure => _error != null;
 
   /// Returns true if the Result Monad has a success value, false otherwise
-  bool get isSuccess => _isSuccess;
+  bool get isSuccess => _value != null;
 
   /// Returns the value if it is a success Result Monad otherwise throws
   /// [ResultMonadException]. It is best to check that it is a success monad
@@ -48,7 +47,7 @@ class Result<T, E> {
       throw ResultMonadException.accessSuccessOnFailure();
     }
 
-    return _value;
+    return _value!;
   }
 
   /// Executes the anonymous function passing the current value to it to support
@@ -62,9 +61,10 @@ class Result<T, E> {
   ///   .andThen((r3) => r3.doSomething3())
   /// ```
   Result<T2, dynamic> andThen<T2, E2>(Result<T2, E2> Function(T) thenFunction) {
-    if (isSuccess) {
+    final value = _value;
+    if (value != null) {
       try {
-        return thenFunction(_value);
+        return thenFunction(value);
       } catch (e) {
         return Result.error(e);
       }
@@ -86,9 +86,10 @@ class Result<T, E> {
   ///   .andThen((r3) => r3.doSomething3())
   /// ```
   Result<T2, dynamic> transform<T2, E2>(T2 Function(T) thenFunction) {
-    if (isSuccess) {
+    final value = _value;
+    if (value != null) {
       try {
-        return Result.ok(thenFunction(_value));
+        return Result.ok(thenFunction(value));
       } catch (e) {
         return Result.error(e);
       }
@@ -132,9 +133,10 @@ class Result<T, E> {
   /// ```
   FutureResult<T2, dynamic> andThenAsync<T2, E2>(
       FutureResult<T2, E2> Function(T) thenFunction) async {
-    if (isSuccess) {
+    final value = _value;
+    if (value != null) {
       try {
-        return await thenFunction(_value);
+        return await thenFunction(value);
       } catch (e) {
         return Result.error(e);
       }
@@ -161,9 +163,10 @@ class Result<T, E> {
   /// ```
   FutureResult<T2, dynamic> transformAsync<T2, E2>(
       Future<T2> Function(T) thenFunction) async {
-    if (isSuccess) {
+    final value = _value;
+    if (value != null) {
       try {
-        final result = await thenFunction(_value);
+        final result = await thenFunction(value);
         return Result.ok(result);
       } catch (e) {
         return Result.error(e);
@@ -194,9 +197,10 @@ class Result<T, E> {
   /// ```
   FutureResult<T2, dynamic> andThenSuccessAsync<T2, E2>(
       Future<T2> Function(T) thenFunction) async {
-    if (isSuccess) {
+    final value = _value;
+    if (value != null) {
       try {
-        final result = await thenFunction(_value);
+        final result = await thenFunction(value);
         return Result.ok(result);
       } catch (e) {
         return Result.error(e);
@@ -224,11 +228,12 @@ class Result<T, E> {
   T2 fold<T2>(
       {required T2 Function(T value) onSuccess,
       required T2 Function(E error) onError}) {
-    if (isSuccess) {
-      return onSuccess(_value);
+    final value = _value;
+    if (value != null) {
+      return onSuccess(value);
     }
 
-    return onError(_error);
+    return onError(_error!);
   }
 
   /// Returns the error value *if* the monad is wrapping a failure or return
@@ -238,7 +243,15 @@ class Result<T, E> {
   /// final Result<int,String> result = obj.doSomething();
   /// final error = result.getErrorOrElse(()=>'No error found');
   /// ```
-  E getErrorOrElse(E Function() orElse) => isFailure ? _error : orElse();
+  E getErrorOrElse(E Function() orElse) {
+    final error = _error;
+
+    if (error != null) {
+      return error;
+    } else {
+      return orElse();
+    }
+  }
 
   /// Returns the success value *if* the monad is wrapping a success or return
   /// the specified default value.
@@ -247,7 +260,15 @@ class Result<T, E> {
   /// final Result<int,String> result = obj.doSomething();
   /// final value = result.getValueOrElse(()=>-1);;
   /// ```
-  T getValueOrElse(T Function() orElse) => isSuccess ? _value : orElse();
+  T getValueOrElse(T Function() orElse) {
+    final value = _value;
+
+    if (value != null) {
+      return value;
+    } else {
+      return orElse();
+    }
+  }
 
   /// Maps from a monad from one error type to another. This is useful for
   /// transforming from error mappings between APIs etc.
@@ -258,11 +279,12 @@ class Result<T, E> {
   /// final Result<int, String> result2 = result1.mapError((exception) => exception.message);
   /// ```
   Result<T, E2> mapError<E2>(E2 Function(E error) mapFunction) {
-    if (isSuccess) {
-      return Result.ok(_value);
+    final value = _value;
+    if (value != null) {
+      return Result.ok(value);
     }
 
-    final newError = mapFunction(_error);
+    final newError = mapFunction(error);
     return Result.error(newError);
   }
 
@@ -284,11 +306,12 @@ class Result<T, E> {
   /// }
   /// ```
   Result<T2, E> errorCast<T2>() {
-    if (isSuccess) {
+    final error = _error;
+    if (error == null) {
       throw ResultMonadException.accessSuccessOnFailure();
     }
 
-    return Result.error(_error);
+    return Result.error(error);
   }
 
   /// Maps from a monad from one result type to another. This is useful for
@@ -300,10 +323,11 @@ class Result<T, E> {
   /// final Result<String, Error> addressResult = user.mapValue((user)=>user.address);
   /// ```
   Result<T2, E> mapValue<T2>(T2 Function(T value) mapFunction) {
-    if (isFailure) {
-      return Result.error(_error);
+    final error = _error;
+    if (error != null) {
+      return Result.error(error);
     }
-    final newValue = mapFunction(_value);
+    final newValue = mapFunction(value);
     return Result.ok(newValue);
   }
 
@@ -315,12 +339,13 @@ class Result<T, E> {
   void match(
       {required Function(T value) onSuccess,
       required Function(E error) onError}) {
-    if (isSuccess) {
-      onSuccess(_value);
+    final value = _value;
+    if (value != null) {
+      onSuccess(value);
       return;
     }
 
-    onError(_error!);
+    onError(error);
   }
 
   /// Executes the anonymous function passing the current success value to it to support
@@ -336,9 +361,10 @@ class Result<T, E> {
   ///   .andThen((r2) => r2.doSomething3())
   /// ```
   Result<T, dynamic> withResult(Function(T) withFunction) {
-    if (isSuccess) {
+    final value = _value;
+    if (value != null) {
       try {
-        withFunction(_value);
+        withFunction(value);
       } catch (e) {
         return Result.error(e);
       }
@@ -361,9 +387,10 @@ class Result<T, E> {
   /// ```
   FutureResult<T, dynamic> withResultAsync(
       Future<void> Function(T) withFunction) async {
-    if (isSuccess) {
+    final value = _value;
+    if (value != null) {
       try {
-        await withFunction(_value);
+        await withFunction(value);
       } catch (e) {
         return Result.error(e);
       }
@@ -388,9 +415,10 @@ class Result<T, E> {
   ///   .withError((error) => print('Something went wrong! $error');
   /// ```
   Result<T, dynamic> withError(Function(E) withFunction) {
-    if (isFailure) {
+    final error = _error;
+    if (error != null) {
       try {
-        withFunction(_error);
+        withFunction(error);
       } catch (e) {
         return Result.error(e);
       }
@@ -416,9 +444,10 @@ class Result<T, E> {
   /// ```
   FutureResult<T, dynamic> withErrorAsync(
       Future<void> Function(E) withFunction) async {
-    if (isFailure) {
+    final error = _error;
+    if (error != null) {
       try {
-        await withFunction(_error);
+        await withFunction(error);
       } catch (e) {
         return Result.error(e);
       }
