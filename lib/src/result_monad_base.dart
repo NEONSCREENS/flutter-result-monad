@@ -18,7 +18,7 @@ abstract class Result<T, E> {
   const factory Result.ok(T value) = Ok;
 
   /// Returns true if the Result Monad has a failure value, false otherwise
-  bool get isError => this is Error<T, E>;
+  bool get isFailure => this is Error<T, E>;
 
   /// Returns true if the Result Monad has a success value, false otherwise
   bool get isSuccess => this is Ok<T, E>;
@@ -42,7 +42,7 @@ abstract class Result<T, E> {
 
   /// Returns the error if it is a failure Result Monad otherwise throws
   /// [ResultMonadException]. It is best to check that it is a failure monad
-  /// by calling [isError].
+  /// by calling [isFailure].
   E get error {
     if (isSuccess) {
       throw ResultMonadException.accessFailureOnSuccess();
@@ -239,7 +239,7 @@ abstract class Result<T, E> {
   /// final error = result.getErrorOrElse(()=>'No error found');
   /// ```
   E getErrorOrElse(E Function() orElse) {
-    if (isError) {
+    if (isFailure) {
       return error;
     } else {
       return orElse();
@@ -312,7 +312,7 @@ abstract class Result<T, E> {
   /// final Result<String, Error> addressResult = user.mapValue((user)=>user.address);
   /// ```
   Result<T2, E> mapValue<T2>(T2 Function(T value) mapFunction) {
-    if (isError) {
+    if (isFailure) {
       return Result.error(error);
     }
     final newValue = mapFunction(value);
@@ -400,7 +400,7 @@ abstract class Result<T, E> {
   ///   .withError((error) => print('Something went wrong! $error');
   /// ```
   Result<T, dynamic> withError(Function(E) withFunction) {
-    if (isError) {
+    if (isFailure) {
       try {
         withFunction(error);
       } catch (e) {
@@ -428,7 +428,7 @@ abstract class Result<T, E> {
   /// ```
   FutureResult<T, dynamic> withErrorAsync(
       Future<void> Function(E) withFunction) async {
-    if (isError) {
+    if (isFailure) {
       try {
         await withFunction(error);
       } catch (e) {

@@ -9,7 +9,7 @@ void main() {
       const resultValue = 'Awesome';
       final success = Result.ok('Awesome');
       expect(success.isSuccess, true);
-      expect(success.isError, false);
+      expect(success.isFailure, false);
       expect(success.value, resultValue);
       expect(() => success.error, throwsA(isA<ResultMonadException>()));
     });
@@ -17,7 +17,7 @@ void main() {
     test('Test create with nullable type', () {
       final success = Result<String?, dynamic>.ok(null);
       expect(success.isSuccess, true);
-      expect(success.isError, false);
+      expect(success.isFailure, false);
       expect(success.value, null);
       expect(() => success.error, throwsA(isA<ResultMonadException>()));
     });
@@ -25,7 +25,7 @@ void main() {
     test('Test create with implicit nullable type', () {
       final success = Result.ok(null);
       expect(success.isSuccess, true);
-      expect(success.isError, false);
+      expect(success.isFailure, false);
       expect(success.value, null);
       expect(() => success.error, throwsA(isA<ResultMonadException>()));
     });
@@ -35,7 +35,7 @@ void main() {
     test('Test create error', () {
       const errorValue = 'Error';
       final failure = Result.error(errorValue);
-      expect(failure.isError, true);
+      expect(failure.isFailure, true);
       expect(failure.isSuccess, false);
       expect(failure.error, errorValue);
       expect(() => failure.value, throwsA(isA<ResultMonadException>()));
@@ -43,7 +43,7 @@ void main() {
 
     test('Test create with nullable type', () {
       final failure = Result<String?, dynamic>.error(null);
-      expect(failure.isError, true);
+      expect(failure.isFailure, true);
       expect(failure.isSuccess, false);
       expect(failure.error, null);
       expect(() => failure.value, throwsA(isA<ResultMonadException>()));
@@ -51,7 +51,7 @@ void main() {
 
     test('Test create with implicit nullable type', () {
       final failure = Result.error(null);
-      expect(failure.isError, true);
+      expect(failure.isFailure, true);
       expect(failure.isSuccess, false);
       expect(failure.error, null);
       expect(() => failure.value, throwsA(isA<ResultMonadException>()));
@@ -385,7 +385,7 @@ void main() {
               .andThenAsync((value) async => throw FormatException()))
           .andThenAsync(
               (value) async => Result.ok('Original string length: $value'));
-      expect(result.isError, true);
+      expect(result.isFailure, true);
       expect(result.error, isA<FormatException>());
     });
   });
@@ -433,7 +433,7 @@ void main() {
               .andThenSuccessAsync((value) async => throw FormatException()))
           .andThenSuccessAsync(
               (value) async => 'Original string length: $value');
-      expect(result.isError, true);
+      expect(result.isFailure, true);
       expect(result.error, isA<FormatException>());
     });
   });
@@ -476,7 +476,7 @@ void main() {
       final result = await (await Result.ok('Success')
               .transformAsync((value) async => throw FormatException()))
           .transformAsync((value) async => 'Original string length: $value');
-      expect(result.isError, true);
+      expect(result.isFailure, true);
       expect(result.error, isA<FormatException>());
     });
   });
@@ -576,7 +576,7 @@ void main() {
       var resultString1 = 'Skipped';
       final result =
           Result.error('Error').withResult((value) => resultString1 = value);
-      expect(result.isError, equals(true));
+      expect(result.isFailure, equals(true));
       expect(resultString1, equals('Skipped'));
     });
 
@@ -589,7 +589,7 @@ void main() {
     test('Test exception thrown generates propagated error', () {
       final result =
           Result.ok('Success').withResult((value) => throw Exception('Error'));
-      expect(result.isError, equals(true));
+      expect(result.isFailure, equals(true));
       expect(result.error.message, equals('Error'));
     });
   });
@@ -607,7 +607,7 @@ void main() {
       var resultString1 = 'Skipped';
       final result = await Result.error('Error')
           .withResultAsync((value) => resultString1 = value);
-      expect(result.isError, equals(true));
+      expect(result.isFailure, equals(true));
       expect(resultString1, equals('Skipped'));
     });
 
@@ -620,7 +620,7 @@ void main() {
     test('Test exception thrown generates propagated error', () async {
       final result = await Result.ok('Success')
           .withResultAsync((value) async => throw Exception('Error'));
-      expect(result.isError, equals(true));
+      expect(result.isFailure, equals(true));
       expect(result.error.message, equals('Error'));
     });
   });
@@ -648,7 +648,7 @@ void main() {
     test('Test exception thrown generates propagated error or new type', () {
       final result = Result.error('Error')
           .withError((value) => throw Exception('New Error'));
-      expect(result.isError, equals(true));
+      expect(result.isFailure, equals(true));
       expect(result.error.message, equals('New Error'));
     });
   });
@@ -677,7 +677,7 @@ void main() {
         () async {
       final result = await Result.error('Error')
           .withErrorAsync((value) async => throw Exception('New Error'));
-      expect(result.isError, equals(true));
+      expect(result.isFailure, equals(true));
       expect(result.error.message, equals('New Error'));
     });
   });
