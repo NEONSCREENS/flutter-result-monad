@@ -33,7 +33,7 @@ void main() {
           .andThen((p0) => Result.ok(p0 + 2))
           .andThen((p0) => Result.error(errorText))
           .andThen((p0) => Result.ok(p0.toString()));
-      expect(result.isFailure, true);
+      expect(result.isError, true);
       expect(result.error, equals(errorText));
     });
 
@@ -53,7 +53,7 @@ void main() {
           .andThen((s) => Result.ok('$s World'))
           .andThen((s) => Result.ok(s[s.length + 1]))
           .andThen((s) => Result.ok('Complete'));
-      expect(result.isFailure, true);
+      expect(result.isError, true);
       expect(result.error, isA<RangeError>());
     });
   });
@@ -80,7 +80,7 @@ void main() {
           .andThenAsync((p0) async => Result.ok(await ds(() => p0 + 2)))
           .andThenAsync((p0) async => Result.error(errorText))
           .andThenAsync((p0) async => Result.ok(p0.toString()));
-      expect(result.isFailure, true);
+      expect(result.isError, true);
       expect(result.error, equals(errorText));
     });
 
@@ -100,7 +100,7 @@ void main() {
           .andThenAsync((s) async => Result.ok('$s World'))
           .andThenAsync((s) async => Result.ok(s[s.length + 1]))
           .andThenAsync((s) async => Result.ok('Complete'));
-      expect(result.isFailure, true);
+      expect(result.isError, true);
       expect(result.error, isA<RangeError>());
     });
   });
@@ -126,7 +126,7 @@ void main() {
           .transform((p0) => p0 + 2)
           .andThen((p0) => Result.error(errorText))
           .transform((p0) => p0.toString());
-      expect(result.isFailure, true);
+      expect(result.isError, true);
       expect(result.error, equals(errorText));
     });
 
@@ -146,7 +146,7 @@ void main() {
           .transform((s) => '$s World')
           .transform((s) => s[s.length + 1])
           .transform((s) => 'Complete');
-      expect(result.isFailure, true);
+      expect(result.isError, true);
       expect(result.error, isA<RangeError>());
     });
   });
@@ -173,7 +173,7 @@ void main() {
           .transformAsync((p0) async => ds(() => p0 + 2))
           .andThenAsync((p0) async => Result.error(errorText))
           .transformAsync((p0) async => p0.toString());
-      expect(result.isFailure, true);
+      expect(result.isError, true);
       expect(result.error, equals(errorText));
     });
 
@@ -193,7 +193,7 @@ void main() {
           .transformAsync((s) async => '$s World')
           .transformAsync((s) async => s[s.length + 1])
           .transformAsync((s) async => 'Complete');
-      expect(result.isFailure, true);
+      expect(result.isError, true);
       expect(result.error, isA<RangeError>());
     });
   });
@@ -219,7 +219,7 @@ void main() {
           .andThenSuccess((p0) => p0 + 2)
           .andThen((p0) => Result.error(errorText))
           .andThenSuccess((p0) => p0.toString());
-      expect(result.isFailure, true);
+      expect(result.isError, true);
       expect(result.error, equals(errorText));
     });
 
@@ -239,7 +239,7 @@ void main() {
           .andThenSuccess((s) => '$s World')
           .andThenSuccess((s) => s[s.length + 1])
           .andThenSuccess((s) => 'Complete');
-      expect(result.isFailure, true);
+      expect(result.isError, true);
       expect(result.error, isA<RangeError>());
     });
   });
@@ -266,7 +266,7 @@ void main() {
           .andThenSuccessAsync((p0) async => ds(() => p0 + 2))
           .andThenAsync((p0) async => Result.error(errorText))
           .andThenSuccessAsync((p0) async => p0.toString());
-      expect(result.isFailure, true);
+      expect(result.isError, true);
       expect(result.error, equals(errorText));
     });
 
@@ -286,7 +286,7 @@ void main() {
           .andThenSuccessAsync((s) async => '$s World')
           .andThenSuccessAsync((s) async => s[s.length + 1])
           .andThenSuccessAsync((s) async => 'Complete');
-      expect(result.isFailure, true);
+      expect(result.isError, true);
       expect(result.error, isA<RangeError>());
     });
   });
@@ -396,7 +396,7 @@ void main() {
       var resultString1 = 'Skipped';
       final result = await buildFutureError('Error')
           .withResult((value) => resultString1 = value);
-      expect(result.isFailure, equals(true));
+      expect(result.isError, equals(true));
       expect(resultString1, equals('Skipped'));
     });
     test('Test pass through mutation does not propagate', () async {
@@ -407,7 +407,7 @@ void main() {
     test('Test exception thrown generates propagated error', () async {
       final result = await buildFutureSuccess('Success')
           .withResult((value) => throw Exception('Error'));
-      expect(result.isFailure, equals(true));
+      expect(result.isError, equals(true));
       expect(result.error.message, equals('Error'));
     });
   });
@@ -424,7 +424,7 @@ void main() {
       var resultString1 = 'Skipped';
       final result = await buildFutureError('Error')
           .withResultAsync((value) => resultString1 = value);
-      expect(result.isFailure, equals(true));
+      expect(result.isError, equals(true));
       expect(resultString1, equals('Skipped'));
     });
     test('Test pass through mutation does not propagate', () async {
@@ -435,7 +435,7 @@ void main() {
     test('Test exception thrown generates propagated error', () async {
       final result = await buildFutureSuccess('Success')
           .withResultAsync((value) async => throw Exception('Error'));
-      expect(result.isFailure, equals(true));
+      expect(result.isError, equals(true));
       expect(result.error.message, equals('Error'));
     });
   });
@@ -464,7 +464,7 @@ void main() {
         () async {
       final result = await buildFutureError('Error')
           .withError((value) => throw Exception('New Error'));
-      expect(result.isFailure, equals(true));
+      expect(result.isError, equals(true));
       expect(result.error.message, equals('New Error'));
     });
   });
@@ -493,7 +493,7 @@ void main() {
         () async {
       final result = await buildFutureError('Error')
           .withErrorAsync((value) async => throw Exception('New Error'));
-      expect(result.isFailure, equals(true));
+      expect(result.isError, equals(true));
       expect(result.error.message, equals('New Error'));
     });
   });

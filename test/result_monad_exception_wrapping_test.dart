@@ -25,7 +25,7 @@ void main() {
       }
       return Result.ok(sum);
     });
-    expect(failure.isFailure, true);
+    expect(failure.isError, true);
     expect(failure.error is RangeError, true);
   });
 
@@ -53,7 +53,7 @@ void main() {
       }
       return Result.ok(sum);
     });
-    expect(failure.isFailure, true);
+    expect(failure.isError, true);
     expect(failure.error is RangeError, true);
   });
   //test real async operations
