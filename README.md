@@ -1,3 +1,8 @@
+# Result Monad
+This is a fork from [HankG/dart-result-monad](https://gitlab.com/HankG/dart-result-monad/) for which we are 
+grateful. I have added some features and fixed some bugs.
+
+# Docs
 A Dart implementation of the Result Monad found in Rust and other languages.
 This models either success (ok) or failure (error) of operations to allow for
 more expressive result generation and processing without using exceptions.
@@ -43,7 +48,7 @@ import 'package:result_monad/result_monad.dart';
 
 ## Usage
 
-Below is a simple example but see [the repository](https://gitlab.com/HankG/dart-result-monad/-/tree/main/example) for feature rich versions:
+Below is a simple example but see /example for feature rich versions:
 
 ```dart
 import 'package:result_monad/result_monad.dart';
