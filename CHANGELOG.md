@@ -1,3 +1,6 @@
+## 2.4.0
+- Allow const constructors
+
 ## 2.3.2
 
 - Tweak to documentation headers to avoid lint error
