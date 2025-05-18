@@ -1,5 +1,5 @@
 # Result Monad
-This is a fork from [HankG/dart-result-monad](https://gitlab.com/HankG/dart-result-monad/) for which we are 
+This is a fork from [HankG/dart-result-monad](https://gitlab.com/HankG/dart-result-monad/) for which we are
 grateful. I have added some features and fixed some bugs.
 
 # Docs
@@ -24,12 +24,13 @@ various aspects of the implementation for this library.
 * `withResult` and `withResultAsync` for processing results in a pass-through capability with
   short-circuiting on thrown exceptions
 * `withError` and `withErrorAsync` for processing errors in a pass-through capability with
-  short-circuiting on thrown exceptions
+  short-circuiting on thrown exceptions, including stacktrace information
 * `mapValue`, `mapError`, `errorCast` methods for transforming success and failure types
 * `match` method for performing different operations on a success or failure
-  monad
+  monad, with stacktrace information for errors
 * `fold` method for transforming the monad into a new result type with different
-  logic for
+  logic for success and error cases, including stacktrace information for errors
+* Automatic stacktrace capture when using `runCatching` and `runCatchingAsync`
 
 ## Getting started
 
@@ -37,7 +38,7 @@ In the `pubspec.yaml` of your Dart/Flutter project, add the following dependency
 
 ```yaml
 dependencies:
-  result_monad: ^2.3.2
+  result_monad: ^2.5.0
 ```
 
 In your source code add the following import:
@@ -65,14 +66,47 @@ void main() {
   // Prints 'Inverse is: 0.5'
   invert(2).match(
       onSuccess: (value) => print("Inverse is: $value"),
-      onError: (error) => print(error));
+      onError: (error, stackTrace) => print(error));
 
   // Prints 'Cannot invert zero'
   invert(0).match(
       onSuccess: (value) => print("Inverse is: $value"),
-      onError: (error) => print(error));
+      onError: (error, stackTrace) => print(error));
 }
 ```
+
+## Stacktrace Support
+
+The Result monad now includes stacktrace support for error handling. This allows you to capture and access the stacktrace where an error occurred, making debugging easier.
+
+```dart
+// Create an error with a stacktrace
+try {
+  // Some code that might throw
+  throw Exception('Something went wrong');
+} catch (e, stackTrace) {
+  return Result.error(e, stackTrace);
+}
+
+// Access the stacktrace in error handlers
+result.match(
+  onSuccess: (value) => print('Success: $value'),
+  onError: (error, stackTrace) {
+    print('Error: $error');
+    if (stackTrace != null) {
+      print('StackTrace: $stackTrace');
+    }
+  },
+);
+
+// Automatic stacktrace capture with runCatching
+final result = runCatching(() {
+  // Code that might throw
+  return someRiskyOperation();
+});
+```
+
+See the `example/stacktrace_example.dart` file for more examples of using stacktrace information.
 
 ## Additional information
 

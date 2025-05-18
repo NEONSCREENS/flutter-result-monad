@@ -16,16 +16,16 @@ import '../result_monad.dart';
 /// });
 ///
 /// sizeResult.match(
-///   (size) => print('File size: $size'),
-///   (error) => print('Error accessing $filename: $error')
+///   onSuccess: (size) => print('File size: $size'),
+///   onError: (error, stackTrace) => print('Error accessing $filename: $error\n$stackTrace')
 /// );
 /// ```
 ///
 Result<T, dynamic> runCatching<T>(Result<T, dynamic> Function() function) {
   try {
     return function();
-  } catch (e) {
-    return Result.error(e);
+  } catch (e, stackTrace) {
+    return Result.error(e, stackTrace);
   }
 }
 
@@ -43,8 +43,8 @@ Result<T, dynamic> runCatching<T>(Result<T, dynamic> Function() function) {
 /// });
 ///
 /// sizeResult.match(
-///   (size) => print('File size: $size'),
-///   (error) => print('Error accessing $filename: $error')
+///   onSuccess: (size) => print('File size: $size'),
+///   onError: (error, stackTrace) => print('Error accessing $filename: $error\n$stackTrace')
 /// );
 /// ```
 ///
@@ -52,7 +52,7 @@ FutureResult<T, dynamic> runCatchingAsync<T>(
     FutureResult<T, dynamic> Function() function) async {
   try {
     return await function();
-  } catch (e) {
-    return Result.error(e);
+  } catch (e, stackTrace) {
+    return Result.error(e, stackTrace);
   }
 }

@@ -61,18 +61,18 @@ extension FutureResultExtension<T, E> on Future<Result<T, E>> {
       (await this).withResultAsync(withFunction);
 
   /// See documentation for the [Result.withError] method.
-  FutureResult<T, dynamic> withError(Function(E) withFunction) async =>
+  FutureResult<T, dynamic> withError(Function(E, StackTrace?) withFunction) async =>
       (await this).withError(withFunction);
 
   /// See documentation for the [Result.withErrorAsync] method.
   FutureResult<T, dynamic> withErrorAsync(
-          Future<void> Function(E) withFunction) async =>
+          Future<void> Function(E, StackTrace?) withFunction) async =>
       (await this).withErrorAsync(withFunction);
 
   /// See documentation for the [Result.match] method.
   Future<void> match(
           {required Function(T value) onSuccess,
-          required Function(E error) onError}) async =>
+          required Function(E error, StackTrace? stackTrace) onError}) async =>
       (await this).match(
         onSuccess: onSuccess,
         onError: onError,
@@ -81,7 +81,7 @@ extension FutureResultExtension<T, E> on Future<Result<T, E>> {
   /// See documentation for the [Result.fold] method.
   Future<T2> fold<T2>(
           {required T2 Function(T value) onSuccess,
-          required T2 Function(E error) onError}) async =>
+          required T2 Function(E error, StackTrace? stackTrace) onError}) async =>
       (await this).fold(
         onSuccess: onSuccess,
         onError: onError,

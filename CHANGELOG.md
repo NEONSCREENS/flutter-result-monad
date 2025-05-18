@@ -1,3 +1,11 @@
+## 2.5.0
+- Added stacktrace support to error handling functions
+- Updated `withError`, `withErrorAsync`, `match`, and `fold` to include stacktrace parameter
+- Added automatic stacktrace capture in `runCatching` and `runCatchingAsync`
+- Added stacktrace example in `example/stacktrace_example.dart`
+- Added comprehensive tests to verify stacktrace capture and propagation
+- Added tests to verify that stacktraces correctly point to the line that threw the exception
+
 ## 2.4.0
 - Allow const constructors
 

@@ -11,7 +11,10 @@ abstract class Result<T, E> {
 
   /// Create a new Result of the expected error type with the error value
   /// `Result<int,String> getErrorValue() => Result.error('This is an error');`
-  const factory Result.error(E error) = Error;
+  ///
+  /// Optionally, you can provide a stackTrace to track where the error occurred.
+  /// If not provided, the current stacktrace will be captured.
+  factory Result.error(E error, [StackTrace? stackTrace]) = Error;
 
   /// Create a new Result of the expected success type with the success value
   /// `Result<int,String> getSuccess() => Result.ok(10);`
@@ -49,6 +52,17 @@ abstract class Result<T, E> {
     }
 
     return asError.cause;
+  }
+
+  /// Returns the stacktrace if it is a failure Result Monad otherwise throws
+  /// [ResultMonadException]. It is best to check that it is a failure monad
+  /// by calling [isFailure].
+  StackTrace? get stackTrace {
+    if (isSuccess) {
+      throw ResultMonadException.accessFailureOnSuccess();
+    }
+
+    return asError.stackTrace;
   }
 
   /// Executes the anonymous function passing the current value to it to support
@@ -217,18 +231,18 @@ abstract class Result<T, E> {
   /// final size = File.open(filename)
   ///  .fold(
   ///    onSuccess: (file) => file.stat().fileSize(),
-  ///    onError: (error) => 0
+  ///    onError: (error, stackTrace) => 0
   ///  );
   /// ```
   ///
   T2 fold<T2>(
       {required T2 Function(T value) onSuccess,
-      required T2 Function(E error) onError}) {
+      required T2 Function(E error, StackTrace? stackTrace) onError}) {
     if (isSuccess) {
       return onSuccess(value);
     }
 
-    return onError(error);
+    return onError(error, stackTrace);
   }
 
   /// Returns the error value *if* the monad is wrapping a failure or return
@@ -322,17 +336,17 @@ abstract class Result<T, E> {
   /// A mechanism for executing functions on a result monad for each of the two conditions
   /// result.match(
   ///   onSuccess: (value) => log.finest('Result: $value');
-  ///   onError: (error) => log.severe('Error getting result: $error');
+  ///   onError: (error, stackTrace) => log.severe('Error getting result: $error', stackTrace: stackTrace);
   /// )
   void match(
       {required Function(T value) onSuccess,
-      required Function(E error) onError}) {
+      required Function(E error, StackTrace? stackTrace) onError}) {
     if (isSuccess) {
       onSuccess(value);
       return;
     }
 
-    onError(error);
+    onError(error, stackTrace);
   }
 
   /// Executes the anonymous function passing the current success value to it to support
@@ -397,12 +411,12 @@ abstract class Result<T, E> {
   /// return doSomething()
   ///   .andThen((r1) => r1.doSomething1())
   ///   .andThen((r2) => r2.doSomething3())
-  ///   .withError((error) => print('Something went wrong! $error');
+  ///   .withError((error, stackTrace) => print('Something went wrong! $error\n$stackTrace');
   /// ```
-  Result<T, dynamic> withError(Function(E) withFunction) {
+  Result<T, dynamic> withError(Function(E, StackTrace?) withFunction) {
     if (isFailure) {
       try {
-        withFunction(error);
+        withFunction(error, stackTrace);
       } catch (e) {
         return Result.error(e);
       }
@@ -424,13 +438,13 @@ abstract class Result<T, E> {
   /// return await doSomething()
   ///   .andThen((r1) => r1.doSomething1())
   ///   .andThen((r2) => r2.doSomething3())
-  ///   .withErrorAsync((error) async => print('Something went wrong! $error');
+  ///   .withErrorAsync((error, stackTrace) async => print('Something went wrong! $error\n$stackTrace');
   /// ```
   FutureResult<T, dynamic> withErrorAsync(
-      Future<void> Function(E) withFunction) async {
+      Future<void> Function(E, StackTrace?) withFunction) async {
     if (isFailure) {
       try {
-        await withFunction(error);
+        await withFunction(error, stackTrace);
       } catch (e) {
         return Result.error(e);
       }
@@ -441,7 +455,12 @@ abstract class Result<T, E> {
 
   @override
   String toString() {
-    return isSuccess ? 'ok($value)' : 'error($error)';
+    if (isSuccess) {
+      return 'ok($value)';
+    } else {
+      final trace = stackTrace != null ? '\nStackTrace: $stackTrace' : '';
+      return 'error($error)$trace';
+    }
   }
 
 }
@@ -453,7 +472,8 @@ class Ok<T, E> extends Result<T, E>{
 }
 
 class Error<T, E>  extends Result<T, E> {
-  const Error(this.cause);
+  const Error(this.cause, [this.stackTrace]);
 
   final E cause;
+  final StackTrace? stackTrace;
 }
