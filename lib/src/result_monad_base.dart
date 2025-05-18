@@ -14,7 +14,7 @@ abstract class Result<T, E> {
   ///
   /// Optionally, you can provide a stackTrace to track where the error occurred.
   /// If not provided, the current stacktrace will be captured.
-  factory Result.error(E error, [StackTrace? stackTrace]) = Error;
+  const factory Result.error(E error, [StackTrace? stackTrace]) = Error;
 
   /// Create a new Result of the expected success type with the success value
   /// `Result<int,String> getSuccess() => Result.ok(10);`
