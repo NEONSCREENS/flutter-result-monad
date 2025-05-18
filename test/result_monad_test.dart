@@ -4,6 +4,17 @@ import 'package:result_monad/result_monad.dart';
 import 'package:test/test.dart';
 
 void main() {
+
+  group('Constructors', (){
+    test('const', (){
+      const a = Result.ok(10);
+      expect(a, isA<Result<int, dynamic>>());
+
+      const Result<int, dynamic> b = Result.ok(10);
+      expect(b, isA<Result<int, dynamic>>());
+    });
+  });
+
   group('Test success monad', () {
     test('Test create success', () {
       const resultValue = 'Awesome';
@@ -159,24 +170,53 @@ void main() {
       final success = Result<String, String>.ok('This is a success');
       success.match(
           onSuccess: (value) => expect(value, equals(success.value)),
-          onError: (error) => fail("Shouldn't execute this path"));
+          onError: (error, _) => fail("Shouldn't execute this path"));
 
       final failure = Result<String, String>.error('This is a failure');
       failure.match(
           onSuccess: (value) => fail("Shouldn't execute this path"),
-          onError: (error) => expect(error, equals(failure.error)));
+          onError: (error, _) => expect(error, equals(failure.error)));
     });
 
     test('Nullable Types', () {
       final success = Result<String?, String?>.ok('This is a success');
       success.match(
           onSuccess: (value) => expect(value, equals(success.value)),
-          onError: (error) => fail("Shouldn't execute this path"));
+          onError: (error, _) => fail("Shouldn't execute this path"));
 
       final failure = Result<String?, String?>.error('This is a failure');
       failure.match(
           onSuccess: (value) => fail("Shouldn't execute this path"),
-          onError: (error) => expect(error, equals(failure.error)));
+          onError: (error, _) => expect(error, equals(failure.error)));
+    });
+
+    test('Test stacktrace is passed to onError callback', () {
+      StackTrace? receivedStackTrace;
+      final originalStackTrace = StackTrace.current;
+
+      Result.error('Error message', originalStackTrace).match(
+        onSuccess: (value) => fail("Shouldn't execute this path"),
+        onError: (error, stackTrace) {
+          expect(error, equals('Error message'));
+          receivedStackTrace = stackTrace;
+        },
+      );
+
+      expect(receivedStackTrace, equals(originalStackTrace));
+    });
+
+    test('Test null stacktrace is passed to onError callback when not provided', () {
+      StackTrace? receivedStackTrace = StackTrace.current;
+
+      Result.error('Error message').match(
+        onSuccess: (value) => fail("Shouldn't execute this path"),
+        onError: (error, stackTrace) {
+          expect(error, equals('Error message'));
+          receivedStackTrace = stackTrace;
+        },
+      );
+
+      expect(receivedStackTrace, isNull);
     });
   });
 
@@ -184,12 +224,12 @@ void main() {
     test('Regular Types', () {
       final success = Result<String, int>.ok('It worked!');
       final successFolded = success.fold(
-          onSuccess: (value) => value, onError: (error) => 'error');
+          onSuccess: (value) => value, onError: (error, _) => 'error');
       expect(successFolded, equals(success.value));
 
       final failed = Result<String, int>.error(100);
       final failedFolded =
-          failed.fold(onSuccess: (value) => 0, onError: (error) => error);
+          failed.fold(onSuccess: (value) => 0, onError: (error, _) => error);
       expect(failedFolded, equals(failed.error));
     });
 
@@ -197,16 +237,49 @@ void main() {
       final success = Result<String?, int?>.ok('It worked!');
       final successFolded = success.fold(
         onSuccess: (value) => value,
-        onError: (error) => 'error',
+        onError: (error, _) => 'error',
       );
       expect(successFolded, equals(success.value));
 
       final failed = Result<String?, int?>.error(100);
       final failedFolded = failed.fold(
         onSuccess: (value) => 0,
-        onError: (error) => error,
+        onError: (error, _) => error,
       );
       expect(failedFolded, equals(failed.error));
+    });
+
+    test('Test stacktrace is passed to onError callback', () {
+      StackTrace? receivedStackTrace;
+      final originalStackTrace = StackTrace.current;
+
+      final result = Result.error('Error message', originalStackTrace).fold(
+        onSuccess: (value) => 'Success',
+        onError: (error, stackTrace) {
+          expect(error, equals('Error message'));
+          receivedStackTrace = stackTrace;
+          return 'Error';
+        },
+      );
+
+      expect(result, equals('Error'));
+      expect(receivedStackTrace, equals(originalStackTrace));
+    });
+
+    test('Test null stacktrace is passed to onError callback when not provided', () {
+      StackTrace? receivedStackTrace = StackTrace.current;
+
+      final result = Result.error('Error message').fold(
+        onSuccess: (value) => 'Success',
+        onError: (error, stackTrace) {
+          expect(error, equals('Error message'));
+          receivedStackTrace = stackTrace;
+          return 'Error';
+        },
+      );
+
+      expect(result, equals('Error'));
+      expect(receivedStackTrace, isNull);
     });
   });
 
@@ -629,27 +702,48 @@ void main() {
     test('Test simple pass through', () {
       var resultString1 = '';
       final result =
-          Result.error('Error').withError((value) => resultString1 = value);
+          Result.error('Error').withError((value, _) => resultString1 = value);
       expect(result.error, equals('Error'));
       expect(resultString1, equals('Error'));
     });
     test('Test success skips', () {
       var resultString1 = 'Skipped';
       final result =
-          Result.ok('Success').withError((value) => resultString1 = value);
+          Result.ok('Success').withError((value, _) => resultString1 = value);
       expect(result.isSuccess, equals(true));
       expect(resultString1, equals('Skipped'));
     });
     test('Test pass through mutation does not propagate', () {
       final result =
-          Result.error('Error').withError((value) => value = 'Hello');
+          Result.error('Error').withError((value, _) => value = 'Hello');
       expect(result.error, equals('Error'));
     });
     test('Test exception thrown generates propagated error or new type', () {
       final result = Result.error('Error')
-          .withError((value) => throw Exception('New Error'));
+          .withError((value, _) => throw Exception('New Error'));
       expect(result.isFailure, equals(true));
       expect(result.error.message, equals('New Error'));
+    });
+    test('Test stacktrace is passed to callback', () {
+      StackTrace? receivedStackTrace;
+      final originalStackTrace = StackTrace.current;
+      final result = Result.error('Error', originalStackTrace)
+          .withError((value, stackTrace) {
+        receivedStackTrace = stackTrace;
+      });
+
+      expect(result.error, equals('Error'));
+      expect(receivedStackTrace, equals(originalStackTrace));
+    });
+    test('Test null stacktrace is passed to callback when not provided', () {
+      StackTrace? receivedStackTrace = StackTrace.current;
+      final result = Result.error('Error')
+          .withError((value, stackTrace) {
+        receivedStackTrace = stackTrace;
+      });
+
+      expect(result.error, equals('Error'));
+      expect(receivedStackTrace, isNull);
     });
   });
 
@@ -657,28 +751,49 @@ void main() {
     test('Test simple pass through', () async {
       var resultString1 = '';
       final result = await Result.error('Error')
-          .withErrorAsync((value) async => resultString1 = value);
+          .withErrorAsync((value, _) async => resultString1 = value);
       expect(result.error, equals('Error'));
       expect(resultString1, equals('Error'));
     });
     test('Test success skips', () async {
       var resultString1 = 'Skipped';
       final result = await Result.ok('Success')
-          .withErrorAsync((value) async => resultString1 = value);
+          .withErrorAsync((value, _) async => resultString1 = value);
       expect(result.isSuccess, equals(true));
       expect(resultString1, equals('Skipped'));
     });
     test('Test pass through mutation does not propagate', () async {
       final result = await Result.error('Error')
-          .withErrorAsync((value) async => value = 'Hello');
+          .withErrorAsync((value, _) async => value = 'Hello');
       expect(result.error, equals('Error'));
     });
     test('Test exception thrown generates propagated error or new type',
         () async {
       final result = await Result.error('Error')
-          .withErrorAsync((value) async => throw Exception('New Error'));
+          .withErrorAsync((value, _) async => throw Exception('New Error'));
       expect(result.isFailure, equals(true));
       expect(result.error.message, equals('New Error'));
+    });
+    test('Test stacktrace is passed to callback', () async {
+      StackTrace? receivedStackTrace;
+      final originalStackTrace = StackTrace.current;
+      final result = await Result.error('Error', originalStackTrace)
+          .withErrorAsync((value, stackTrace) async {
+        receivedStackTrace = stackTrace;
+      });
+
+      expect(result.error, equals('Error'));
+      expect(receivedStackTrace, equals(originalStackTrace));
+    });
+    test('Test null stacktrace is passed to callback when not provided', () async {
+      StackTrace? receivedStackTrace = StackTrace.current;
+      final result = await Result.error('Error')
+          .withErrorAsync((value, stackTrace) async {
+        receivedStackTrace = stackTrace;
+      });
+
+      expect(result.error, equals('Error'));
+      expect(receivedStackTrace, isNull);
     });
   });
 

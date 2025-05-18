@@ -444,26 +444,26 @@ void main() {
     test('Test simple pass through', () async {
       var resultString1 = '';
       final result = await buildFutureError('Error')
-          .withError((value) => resultString1 = value);
+          .withError((value, _) => resultString1 = value);
       expect(result.error, equals('Error'));
       expect(resultString1, equals('Error'));
     });
     test('Test success skips', () async {
       var resultString1 = 'Skipped';
       final result = await buildFutureSuccess('Success')
-          .withError((value) => resultString1 = value);
+          .withError((value, _) => resultString1 = value);
       expect(result.isSuccess, equals(true));
       expect(resultString1, equals('Skipped'));
     });
     test('Test pass through mutation does not propagate', () async {
       final result =
-          await buildFutureError('Error').withError((value) => value = 'Hello');
+          await buildFutureError('Error').withError((value, _) => value = 'Hello');
       expect(result.error, equals('Error'));
     });
     test('Test exception thrown generates propagated error or new type',
         () async {
       final result = await buildFutureError('Error')
-          .withError((value) => throw Exception('New Error'));
+          .withError((value, _) => throw Exception('New Error'));
       expect(result.isFailure, equals(true));
       expect(result.error.message, equals('New Error'));
     });
@@ -473,26 +473,26 @@ void main() {
     test('Test simple pass through', () async {
       var resultString1 = '';
       final result = await buildFutureError('Error')
-          .withErrorAsync((value) async => resultString1 = value);
+          .withErrorAsync((value, _) async => resultString1 = value);
       expect(result.error, equals('Error'));
       expect(resultString1, equals('Error'));
     });
     test('Test success skips', () async {
       var resultString1 = 'Skipped';
       final result = await buildFutureSuccess('Success')
-          .withErrorAsync((value) async => resultString1 = value);
+          .withErrorAsync((value, _) async => resultString1 = value);
       expect(result.isSuccess, equals(true));
       expect(resultString1, equals('Skipped'));
     });
     test('Test pass through mutation does not propagate', () async {
       final result = await buildFutureError('Error')
-          .withErrorAsync((value) async => value = 'Hello');
+          .withErrorAsync((value, _) async => value = 'Hello');
       expect(result.error, equals('Error'));
     });
     test('Test exception thrown generates propagated error or new type',
         () async {
       final result = await buildFutureError('Error')
-          .withErrorAsync((value) async => throw Exception('New Error'));
+          .withErrorAsync((value, _) async => throw Exception('New Error'));
       expect(result.isFailure, equals(true));
       expect(result.error.message, equals('New Error'));
     });
@@ -505,21 +505,21 @@ void main() {
     test('Regular types', () async {
       await buildFutureSuccess(expectedSuccess).match(
           onSuccess: (value) => expect(value, equals(expectedSuccess)),
-          onError: (error) => fail("Shouldn't execute this path"));
+          onError: (error, _) => fail("Shouldn't execute this path"));
 
       await buildFutureError(expectedFailure).match(
           onSuccess: (value) => fail("Shouldn't execute this path"),
-          onError: (error) => expect(error, equals(expectedFailure)));
+          onError: (error, _) => expect(error, equals(expectedFailure)));
     });
 
     test('Nullable Types', () async {
       await buildFutureSuccess(expectedSuccess).match(
           onSuccess: (value) => expect(value, equals(expectedSuccess)),
-          onError: (error) => fail("Shouldn't execute this path"));
+          onError: (error, _) => fail("Shouldn't execute this path"));
 
       await buildFutureError(expectedFailure).match(
           onSuccess: (value) => fail("Shouldn't execute this path"),
-          onError: (error) => expect(error, equals(expectedFailure)));
+          onError: (error, _) => expect(error, equals(expectedFailure)));
     });
   });
 
@@ -529,23 +529,23 @@ void main() {
 
     test('Regular Types', () async {
       final successFolded = await buildFutureSuccess(expectedSuccess)
-          .fold(onSuccess: (value) => value, onError: (error) => 'error');
+          .fold(onSuccess: (value) => value, onError: (error, stack) => 'error');
       expect(successFolded, equals(expectedSuccess));
 
       final failedFolded = await buildFutureError(100)
-          .fold(onSuccess: (value) => 0, onError: (error) => error);
+          .fold(onSuccess: (value) => 0, onError: (error, stack) => error);
       expect(failedFolded, equals(expectedFailure));
     });
 
     test('Nullable Types', () async {
       final successFolded = await buildFutureSuccess(expectedSuccess)
           .andThenSuccessAsync((p0) async => p0)
-          .fold(onSuccess: (value) => value, onError: (error) => 'error');
+          .fold(onSuccess: (value) => value, onError: (error, stack) => 'error');
       expect(successFolded, equals(expectedSuccess));
 
       final failedFolded = await buildFutureError(100)
           .andThenSuccessAsync((p0) async => p0)
-          .fold(onSuccess: (value) => 0, onError: (error) => error);
+          .fold(onSuccess: (value) => 0, onError: (error, stack) => error);
       expect(failedFolded, equals(expectedFailure));
       expect(failedFolded, equals(expectedFailure));
     });
