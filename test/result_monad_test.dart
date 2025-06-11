@@ -4,14 +4,30 @@ import 'package:result_monad/result_monad.dart';
 import 'package:test/test.dart';
 
 void main() {
+  group('Constructors', () {
+    group('ok', (){
+      test('without explicit error type defaults to dynamic', () {
+        const a = Result.ok(10);
+        expect(a, isA<Result<int, dynamic>>());
+      });
 
-  group('Constructors', (){
-    test('const', (){
-      const a = Result.ok(10);
-      expect(a, isA<Result<int, dynamic>>());
+      test('with explicit error type keeps it', () {
+        const Result<int, String> b = Result.ok(10);
+        expect(b, isA<Result<int, String>>());
+      });
+    });
 
-      const Result<int, dynamic> b = Result.ok(10);
-      expect(b, isA<Result<int, dynamic>>());
+
+    group('error', () {
+      test('without explicit error type defaults to dynamic', () {
+        const a = Result.error(10);
+        expect(a, isA<Result<dynamic, int>>());
+      });
+
+      test('with explicit error type keeps it', () {
+        const Result<int, String> b = Result.error("error");
+        expect(b, isA<Result<int, String>>());
+      });
     });
   });
 
@@ -205,7 +221,8 @@ void main() {
       expect(receivedStackTrace, equals(originalStackTrace));
     });
 
-    test('Test null stacktrace is passed to onError callback when not provided', () {
+    test('Test null stacktrace is passed to onError callback when not provided',
+        () {
       StackTrace? receivedStackTrace = StackTrace.current;
 
       Result.error('Error message').match(
@@ -266,7 +283,8 @@ void main() {
       expect(receivedStackTrace, equals(originalStackTrace));
     });
 
-    test('Test null stacktrace is passed to onError callback when not provided', () {
+    test('Test null stacktrace is passed to onError callback when not provided',
+        () {
       StackTrace? receivedStackTrace = StackTrace.current;
 
       final result = Result.error('Error message').fold(
@@ -737,8 +755,7 @@ void main() {
     });
     test('Test null stacktrace is passed to callback when not provided', () {
       StackTrace? receivedStackTrace = StackTrace.current;
-      final result = Result.error('Error')
-          .withError((value, stackTrace) {
+      final result = Result.error('Error').withError((value, stackTrace) {
         receivedStackTrace = stackTrace;
       });
 
@@ -785,10 +802,11 @@ void main() {
       expect(result.error, equals('Error'));
       expect(receivedStackTrace, equals(originalStackTrace));
     });
-    test('Test null stacktrace is passed to callback when not provided', () async {
+    test('Test null stacktrace is passed to callback when not provided',
+        () async {
       StackTrace? receivedStackTrace = StackTrace.current;
-      final result = await Result.error('Error')
-          .withErrorAsync((value, stackTrace) async {
+      final result =
+          await Result.error('Error').withErrorAsync((value, stackTrace) async {
         receivedStackTrace = stackTrace;
       });
 
