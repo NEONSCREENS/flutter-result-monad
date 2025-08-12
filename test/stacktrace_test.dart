@@ -48,7 +48,8 @@ void main() {
       }
     });
 
-    test('runCatchingAsync should capture stacktrace from thrown exception', () async {
+    test('runCatchingAsync should capture stacktrace from thrown exception',
+        () async {
       final result = await runCatchingAsync(() async {
         // This line number is important for the test below
         throw Exception('Test async exception');
@@ -93,7 +94,8 @@ void main() {
       bool stackTraceReceived = false;
       final stackTrace = StackTrace.current;
 
-      await Result.error('Error message', stackTrace).withErrorAsync((error, st) async {
+      await Result.error('Error message', stackTrace)
+          .withErrorAsync((error, st) async {
         expect(error, equals('Error message'));
         expect(st, equals(stackTrace));
         stackTraceReceived = true;
