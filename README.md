@@ -1,4 +1,5 @@
 # Result Monad
+[![codecov](https://codecov.io/gh/NEONSCREENS/flutter-result-monad/graph/badge.svg?token=Y4ab1Lkgsc)](https://codecov.io/gh/NEONSCREENS/flutter-result-monad)
 This is a fork from [HankG/dart-result-monad](https://gitlab.com/HankG/dart-result-monad/) for which we are
 grateful. I have added some features and fixed some bugs.
 
