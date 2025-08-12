@@ -82,14 +82,16 @@ void main() {
   print('\nExample 5: Error without stacktrace - Using fold');
   final result1 = divideNumbers(10, 0).fold(
     onSuccess: (value) => 'Success: $value',
-    onError: (error, stackTrace) => 'Error: $error${stackTrace != null ? '\nStackTrace: $stackTrace' : ''}',
+    onError: (error, stackTrace) =>
+        'Error: $error${stackTrace != null ? '\nStackTrace: $stackTrace' : ''}',
   );
   print(result1);
 
   print('\nExample 6: Error with stacktrace - Using fold');
   final result2 = divideNumbersWithStacktrace(10, 0).fold(
     onSuccess: (value) => 'Success: $value',
-    onError: (error, stackTrace) => 'Error: $error${stackTrace != null ? '\nStackTrace: $stackTrace' : ''}',
+    onError: (error, stackTrace) =>
+        'Error: $error${stackTrace != null ? '\nStackTrace: $stackTrace' : ''}',
   );
   print(result2);
 
@@ -124,7 +126,8 @@ void main() {
     },
   );
 
-  print('\nExample 9: Using runCatchingAsync to automatically capture stacktrace');
+  print(
+      '\nExample 9: Using runCatchingAsync to automatically capture stacktrace');
   runCatchingAsync(() async {
     await Future.delayed(Duration(milliseconds: 100));
     final list = [1, 2, 3];
