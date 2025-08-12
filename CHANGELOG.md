@@ -1,3 +1,6 @@
+## 2.5.1
+- Fix Compilation Inference for factory constructors #3
+
 ## 2.5.0
 - Added stacktrace support to error handling functions
 - Updated `withError`, `withErrorAsync`, `match`, and `fold` to include stacktrace parameter
