@@ -7,12 +7,12 @@ void main() {
   group('Constructors', () {
     group('ok', (){
       test('without explicit error type defaults to dynamic', () {
-        const a = Result.ok(10);
+        const a = Ok<int, dynamic>(10);
         expect(a, isA<Result<int, dynamic>>());
       });
 
       test('with explicit error type keeps it', () {
-        const Result<int, String> b = Result.ok(10);
+        const b = Ok<int, dynamic>(10);
         expect(b, isA<Result<int, String>>());
       });
     });

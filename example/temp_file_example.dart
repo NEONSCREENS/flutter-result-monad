@@ -12,14 +12,17 @@ void main(List<String> arguments) {
   final stringToWrite = 'Data written to the temp file ${DateTime.now()}';
   final tmpFileResult = getTempFile()
       .withResult((file) => print('Temp file: ${file.path}'))
-      .withError((error) => print('Error getting temp file: $error'));
+      .withError(
+          (error, stackTrace) => print('Error getting temp file: $error'));
 
   // Probably would check if failure and stop here normally but want to show
   // that even starting with an error Result Monad flows correctly.
   final writtenSuccessfully = tmpFileResult
       .withResult((file) => file.writeAsStringSync(stringToWrite))
       .transform((file) => file.readAsStringSync())
-      .fold(onSuccess: (text) => text == stringToWrite, onError: (_) => false);
+      .fold(
+          onSuccess: (text) => text == stringToWrite,
+          onError: (_, __) => false);
 
   print('Successfully wrote to temp file? $writtenSuccessfully');
 }

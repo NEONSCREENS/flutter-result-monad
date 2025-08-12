@@ -467,6 +467,7 @@ abstract class Result<T, E> {
 class Ok<T, E> extends Result<T, E> {
   const Ok(this.value);
 
+  @override
   final T value;
 }
 
@@ -474,5 +475,6 @@ class Error<T, E> extends Result<T, E> {
   const Error(this.cause, [this.stackTrace]);
 
   final E cause;
+  @override
   final StackTrace? stackTrace;
 }
