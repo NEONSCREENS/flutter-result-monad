@@ -5,7 +5,7 @@ import 'package:test/test.dart';
 
 void main() {
   group('Constructors', () {
-    group('ok', (){
+    group('ok', () {
       test('without explicit error type defaults to dynamic', () {
         const a = Result.ok(10);
         expect(a, isA<Result<int, dynamic>>());
@@ -221,19 +221,19 @@ void main() {
     });
 
     test('Test null stacktrace is passed to onError callback when not provided',
-            () {
-          StackTrace? receivedStackTrace = StackTrace.current;
+        () {
+      StackTrace? receivedStackTrace = StackTrace.current;
 
-          Result.error('Error message').match(
-            onSuccess: (value) => fail("Shouldn't execute this path"),
-            onError: (error, stackTrace) {
-              expect(error, equals('Error message'));
-              receivedStackTrace = stackTrace;
-            },
-          );
+      Result.error('Error message').match(
+        onSuccess: (value) => fail("Shouldn't execute this path"),
+        onError: (error, stackTrace) {
+          expect(error, equals('Error message'));
+          receivedStackTrace = stackTrace;
+        },
+      );
 
-          expect(receivedStackTrace, isNull);
-        });
+      expect(receivedStackTrace, isNull);
+    });
   });
 
   group('Test fold', () {
@@ -245,7 +245,7 @@ void main() {
 
       final failed = Result<String, int>.error(100);
       final failedFolded =
-      failed.fold(onSuccess: (value) => 0, onError: (error, _) => error);
+          failed.fold(onSuccess: (value) => 0, onError: (error, _) => error);
       expect(failedFolded, equals(failed.error));
     });
 
@@ -283,21 +283,21 @@ void main() {
     });
 
     test('Test null stacktrace is passed to onError callback when not provided',
-            () {
-          StackTrace? receivedStackTrace = StackTrace.current;
+        () {
+      StackTrace? receivedStackTrace = StackTrace.current;
 
-          final result = Result.error('Error message').fold(
-            onSuccess: (value) => 'Success',
-            onError: (error, stackTrace) {
-              expect(error, equals('Error message'));
-              receivedStackTrace = stackTrace;
-              return 'Error';
-            },
-          );
+      final result = Result.error('Error message').fold(
+        onSuccess: (value) => 'Success',
+        onError: (error, stackTrace) {
+          expect(error, equals('Error message'));
+          receivedStackTrace = stackTrace;
+          return 'Error';
+        },
+      );
 
-          expect(result, equals('Error'));
-          expect(receivedStackTrace, isNull);
-        });
+      expect(result, equals('Error'));
+      expect(receivedStackTrace, isNull);
+    });
   });
 
   group('Test andThen', () {
@@ -435,7 +435,7 @@ void main() {
   group('Test andThenAsync', () {
     test('Test success result', () async {
       final result = await (await Result.ok('Success')
-          .andThenAsync((value) async => Result.ok(value.length)))
+              .andThenAsync((value) async => Result.ok(value.length)))
           .andThenAsync(
               (value) async => Result.ok('Original string length: $value'));
       expect(result.value, equals('Original string length: 7'));
@@ -443,13 +443,13 @@ void main() {
 
     test('Test success result with nullable', () async {
       final result = await (await Result<String?, int>.ok('Success')
-          .andThenAsync((value) async => Result.ok(value?.length ?? -1)))
+              .andThenAsync((value) async => Result.ok(value?.length ?? -1)))
           .andThenAsync(
               (value) async => Result.ok('Original string length: $value'));
       expect(result.value, equals('Original string length: 7'));
 
       final result2 = await (await Result<String?, int>.ok(null)
-          .andThenAsync((value) async => Result.ok(value?.length ?? -1)))
+              .andThenAsync((value) async => Result.ok(value?.length ?? -1)))
           .andThenAsync(
               (value) async => Result.ok('Original string length: $value'));
       expect(result2.value, equals('Original string length: -1'));
@@ -458,13 +458,13 @@ void main() {
     test('Test starting with failure', () async {
       final initial = Result.error('failed!');
       final result =
-      await initial.andThenAsync((value) async => Result.ok(value.length));
+          await initial.andThenAsync((value) async => Result.ok(value.length));
       expect(result.error, equals(initial.error));
     });
 
     test('Test chaining with short circuit', () async {
       final result = await (await Result.ok('Success')
-          .andThenAsync((value) async => Result.error('error')))
+              .andThenAsync((value) async => Result.error('error')))
           .andThenAsync(
               (value) async => Result.ok('Original string length: $value'));
       expect(result.error, equals('error'));
@@ -472,7 +472,7 @@ void main() {
 
     test('Test chaining with exception short circuit', () async {
       final result = await (await Result.ok('Success')
-          .andThenAsync((value) async => throw FormatException()))
+              .andThenAsync((value) async => throw FormatException()))
           .andThenAsync(
               (value) async => Result.ok('Original string length: $value'));
       expect(result.isFailure, true);
@@ -483,7 +483,7 @@ void main() {
   group('Test andThenSuccessAsync', () {
     test('Test success result', () async {
       final result = await (await Result.ok('Success')
-          .andThenSuccessAsync((value) async => value.length))
+              .andThenSuccessAsync((value) async => value.length))
           .andThenSuccessAsync(
               (value) async => 'Original string length: $value');
       expect(result.value, equals('Original string length: 7'));
@@ -491,13 +491,13 @@ void main() {
 
     test('Test success result with nullable', () async {
       final result = await (await Result<String?, int>.ok('Success')
-          .andThenSuccessAsync((value) async => value?.length ?? -1))
+              .andThenSuccessAsync((value) async => value?.length ?? -1))
           .andThenSuccessAsync(
               (value) async => 'Original string length: $value');
       expect(result.value, equals('Original string length: 7'));
 
       final result2 = await (await Result<String?, int>.ok(null)
-          .andThenSuccessAsync((value) async => value?.length ?? -1))
+              .andThenSuccessAsync((value) async => value?.length ?? -1))
           .andThenSuccessAsync(
               (value) async => 'Original string length: $value');
       expect(result2.value, equals('Original string length: -1'));
@@ -506,13 +506,13 @@ void main() {
     test('Test starting with failure', () async {
       final initial = Result.error('failed!');
       final result =
-      await initial.andThenSuccessAsync((value) async => value.length);
+          await initial.andThenSuccessAsync((value) async => value.length);
       expect(result.error, equals(initial.error));
     });
 
     test('Test chaining with short circuit', () async {
       final result = await (await Result.ok('Success')
-          .andThenAsync((value) async => Result.error('error')))
+              .andThenAsync((value) async => Result.error('error')))
           .andThenSuccessAsync(
               (value) async => 'Original string length: $value');
       expect(result.error, equals('error'));
@@ -520,7 +520,7 @@ void main() {
 
     test('Test chaining with exception short circuit', () async {
       final result = await (await Result.ok('Success')
-          .andThenSuccessAsync((value) async => throw FormatException()))
+              .andThenSuccessAsync((value) async => throw FormatException()))
           .andThenSuccessAsync(
               (value) async => 'Original string length: $value');
       expect(result.isFailure, true);
@@ -531,19 +531,19 @@ void main() {
   group('Test transformAsync', () {
     test('Test success result', () async {
       final result = await (await Result.ok('Success')
-          .transformAsync((value) async => value.length))
+              .transformAsync((value) async => value.length))
           .transformAsync((value) async => 'Original string length: $value');
       expect(result.value, equals('Original string length: 7'));
     });
 
     test('Test success result with nullable', () async {
       final result = await (await Result<String?, int>.ok('Success')
-          .transformAsync((value) async => value?.length ?? -1))
+              .transformAsync((value) async => value?.length ?? -1))
           .transformAsync((value) async => 'Original string length: $value');
       expect(result.value, equals('Original string length: 7'));
 
       final result2 = await (await Result<String?, int>.ok(null)
-          .transformAsync((value) async => value?.length ?? -1))
+              .transformAsync((value) async => value?.length ?? -1))
           .transformAsync((value) async => 'Original string length: $value');
       expect(result2.value, equals('Original string length: -1'));
     });
@@ -551,20 +551,20 @@ void main() {
     test('Test starting with failure', () async {
       final initial = Result.error('failed!');
       final result =
-      await initial.transformAsync((value) async => value.length);
+          await initial.transformAsync((value) async => value.length);
       expect(result.error, equals(initial.error));
     });
 
     test('Test chaining with short circuit', () async {
       final result = await (await Result.ok('Success')
-          .andThenAsync((value) async => Result.error('error')))
+              .andThenAsync((value) async => Result.error('error')))
           .transformAsync((value) async => 'Original string length: $value');
       expect(result.error, equals('error'));
     });
 
     test('Test chaining with exception short circuit', () async {
       final result = await (await Result.ok('Success')
-          .transformAsync((value) async => throw FormatException()))
+              .transformAsync((value) async => throw FormatException()))
           .transformAsync((value) async => 'Original string length: $value');
       expect(result.isFailure, true);
       expect(result.error, isA<FormatException>());
@@ -625,7 +625,7 @@ void main() {
 
     test('Test mapping of value same type nullable', () {
       final success =
-      Result<String?, int>.ok(null).mapValue((value) => 'Success2!');
+          Result<String?, int>.ok(null).mapValue((value) => 'Success2!');
       expect(success.value, equals('Success2!'));
     });
 
@@ -636,7 +636,7 @@ void main() {
 
     test('Test mapping of value different type nullable', () {
       final success =
-      Result<String?, String>.ok(null).mapValue((value) => value?.length);
+          Result<String?, String>.ok(null).mapValue((value) => value?.length);
       expect(success.value, equals(null));
     });
 
@@ -657,7 +657,7 @@ void main() {
     test('Test simple pass through', () {
       var resultString1 = '';
       final result =
-      Result.ok('Success').withResult((value) => resultString1 = value);
+          Result.ok('Success').withResult((value) => resultString1 = value);
       expect(result.value, equals('Success'));
       expect(resultString1, equals('Success'));
     });
@@ -665,20 +665,20 @@ void main() {
     test('Test error skips', () {
       var resultString1 = 'Skipped';
       final result =
-      Result.error('Error').withResult((value) => resultString1 = value);
+          Result.error('Error').withResult((value) => resultString1 = value);
       expect(result.isFailure, equals(true));
       expect(resultString1, equals('Skipped'));
     });
 
     test('Test pass through mutation does not propagate', () {
       final result =
-      Result.ok('Success').withResult((value) => value = 'Hello');
+          Result.ok('Success').withResult((value) => value = 'Hello');
       expect(result.value, equals('Success'));
     });
 
     test('Test exception thrown generates propagated error', () {
       final result =
-      Result.ok('Success').withResult((value) => throw Exception('Error'));
+          Result.ok('Success').withResult((value) => throw Exception('Error'));
       expect(result.isFailure, equals(true));
       expect(result.error.message, equals('Error'));
     });
@@ -719,20 +719,20 @@ void main() {
     test('Test simple pass through', () {
       var resultString1 = '';
       final result =
-      Result.error('Error').withError((value, _) => resultString1 = value);
+          Result.error('Error').withError((value, _) => resultString1 = value);
       expect(result.error, equals('Error'));
       expect(resultString1, equals('Error'));
     });
     test('Test success skips', () {
       var resultString1 = 'Skipped';
       final result =
-      Result.ok('Success').withError((value, _) => resultString1 = value);
+          Result.ok('Success').withError((value, _) => resultString1 = value);
       expect(result.isSuccess, equals(true));
       expect(resultString1, equals('Skipped'));
     });
     test('Test pass through mutation does not propagate', () {
       final result =
-      Result.error('Error').withError((value, _) => value = 'Hello');
+          Result.error('Error').withError((value, _) => value = 'Hello');
       expect(result.error, equals('Error'));
     });
     test('Test exception thrown generates propagated error or new type', () {
@@ -784,12 +784,12 @@ void main() {
       expect(result.error, equals('Error'));
     });
     test('Test exception thrown generates propagated error or new type',
-            () async {
-          final result = await Result.error('Error')
-              .withErrorAsync((value, _) async => throw Exception('New Error'));
-          expect(result.isFailure, equals(true));
-          expect(result.error.message, equals('New Error'));
-        });
+        () async {
+      final result = await Result.error('Error')
+          .withErrorAsync((value, _) async => throw Exception('New Error'));
+      expect(result.isFailure, equals(true));
+      expect(result.error.message, equals('New Error'));
+    });
     test('Test stacktrace is passed to callback', () async {
       StackTrace? receivedStackTrace;
       final originalStackTrace = StackTrace.current;
@@ -802,16 +802,16 @@ void main() {
       expect(receivedStackTrace, equals(originalStackTrace));
     });
     test('Test null stacktrace is passed to callback when not provided',
-            () async {
-          StackTrace? receivedStackTrace = StackTrace.current;
-          final result =
+        () async {
+      StackTrace? receivedStackTrace = StackTrace.current;
+      final result =
           await Result.error('Error').withErrorAsync((value, stackTrace) async {
-            receivedStackTrace = stackTrace;
-          });
+        receivedStackTrace = stackTrace;
+      });
 
-          expect(result.error, equals('Error'));
-          expect(receivedStackTrace, isNull);
-        });
+      expect(result.error, equals('Error'));
+      expect(receivedStackTrace, isNull);
+    });
   });
 
   group('Test Async Chaining', () {
@@ -822,11 +822,11 @@ void main() {
           .transform((b) => work('${b}3:'))
           .transformAsync((b) async => await asyncWork('${b}4:'))
           .transform((s) => s
-          .split('\n')
-          .map((l) => l.split(':').first)
-          .where((e) => e.isNotEmpty)
-          .map((i) => int.parse(i))
-          .toList())
+              .split('\n')
+              .map((l) => l.split(':').first)
+              .where((e) => e.isNotEmpty)
+              .map((i) => int.parse(i))
+              .toList())
           .withResult((r) => expect(r, equals([1, 2, 3, 4])));
       expect(result.isSuccess, equals(true));
     });
@@ -848,6 +848,6 @@ void main() {
 String work(String base) => '$base @ ${DateTime.now()}\n';
 
 Future<String> asyncWork(String base) async => Future.delayed(
-  Duration(milliseconds: Random().nextInt(100)),
+      Duration(milliseconds: Random().nextInt(100)),
       () async => work(base),
-);
+    );
