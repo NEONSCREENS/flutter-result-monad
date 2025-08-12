@@ -55,6 +55,7 @@ jobs:
   quality:
     name: Code Quality Checks
     runs-on: ubuntu-latest
+    needs: test
     
     steps:
     - name: Checkout repository
@@ -88,7 +89,6 @@ jobs:
     - name: Check pub publish warnings
       run: dart pub publish --dry-run
 
-  # Coverage job (optional)
   coverage:
     name: Test Coverage
     runs-on: ubuntu-latest
