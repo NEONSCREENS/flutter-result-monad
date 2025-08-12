@@ -12,10 +12,10 @@ void main() {
   // Prints 'Inverse is: 0.5'
   invert(2).match(
       onSuccess: (value) => print("Inverse is: $value"),
-      onError: (error) => print(error));
+      onError: (error, stackTrace) => print(error));
 
   // Prints 'Cannot invert zero'
   invert(0).match(
       onSuccess: (value) => print("Inverse is: $value"),
-      onError: (error) => print(error));
+      onError: (error, stackTrace) => print(error));
 }

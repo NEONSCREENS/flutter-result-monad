@@ -27,22 +27,22 @@ void main() {
   // Prints 'Inverse is: 0.5'
   invert(2).match(
     onSuccess: (value) => print("Inverse is: $value"),
-    onError: (error) => print(error),
+    onError: (error, stackTrace) => print(error),
   );
 
   // Prints 'Cannot invert zero'
   invert(0).match(
     onSuccess: (value) => print("Inverse is: $value"),
-    onError: (error) => print(error),
+    onError: (error, stackTrace) => print(error),
   );
 
   sqrt(4).match(
     onSuccess: (value) => print("Sqrt is: $value"),
-    onError: (error) => print(error),
+    onError: (error, stackTrace) => print(error),
   );
 
   sqrt(-1).match(
     onSuccess: (value) => print("Sqrt is: $value"),
-    onError: (error) => print('Error calculating sqrt(-1): $error'),
+    onError: (error, stackTrace) => print('Error calculating sqrt(-1): $error'),
   );
 }

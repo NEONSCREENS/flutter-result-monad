@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        dart-version: ['2.14.4', 'stable']
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Dart SDK
+      uses: dart-lang/setup-dart@v1
+      with:
+        sdk: ${{ matrix.dart-version }}
+    
+    - name: Cache pub dependencies
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.pub-cache
+          .dart_tool
+        key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-pub-
+    
+    - name: Install dependencies
+      run: dart pub get --no-precompile
+    
+    - name: Verify formatting
+      run: dart format --output=none --set-exit-if-changed .
+      if: matrix.dart-version == 'stable'
+    
+    - name: Analyze project source
+      run: dart analyze --fatal-infos
+      if: matrix.dart-version == 'stable'
+    
+    - name: Run tests
+      run: dart test --platform vm --timeout 30s --concurrency=6 --test-randomize-ordering-seed=random --reporter=expanded
+   publish:
+     needs: test
+     runs-on: ubuntu-latest
+     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+     steps:
+     - name: Checkout code
+       uses: actions/checkout@v4
+
+     - name: Setup Dart SDK
+       uses: dart-lang/setup-dart@v1
+       with:
+         sdk: stable
+
+     - name: Install dependencies
+       run: dart pub get
+
+     - name: Publish to pub.dev
+       run: dart pub publish --dry-run

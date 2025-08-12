@@ -1,0 +1,130 @@
+name: Dart Package CI
+
+on:
+  push:
+  pull_request:
+    branches: [ main, master, develop ]
+  schedule:
+    # Run tests daily at 2 AM UTC to catch dependency issues
+    - cron: '0 2 * * *'
+
+env:
+  PUB_ENVIRONMENT: bot.github
+
+jobs:
+  # Job that replicates the original GitLab CI functionality
+  test:
+    name: Test on Dart ${{ matrix.dart-version }}
+    runs-on: ubuntu-latest
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        dart-version: ['2.14.4', '2.17.0', 'stable', 'beta']
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Setup Dart SDK ${{ matrix.dart-version }}
+      uses: dart-lang/setup-dart@v1
+      with:
+        sdk: ${{ matrix.dart-version }}
+    
+    - name: Print Dart SDK version
+      run: dart --version
+    
+    - name: Cache pub dependencies
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.pub-cache
+          .dart_tool/package_config.json
+        key: ${{ runner.os }}-pub-${{ matrix.dart-version }}-${{ hashFiles('**/pubspec.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-pub-${{ matrix.dart-version }}-
+          ${{ runner.os }}-pub-
+    
+    - name: Install dependencies
+      run: dart pub get --no-precompile
+    
+    - name: Run tests (matching GitLab CI config)
+      run: dart test --platform vm --timeout 30s --concurrency=6 --test-randomize-ordering-seed=random --reporter=expanded
+
+  # Additional quality checks (only run on stable Dart)
+  quality:
+    name: Code Quality Checks
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Setup Dart SDK
+      uses: dart-lang/setup-dart@v1
+      with:
+        sdk: stable
+    
+    - name: Cache pub dependencies
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.pub-cache
+          .dart_tool/package_config.json
+        key: ${{ runner.os }}-pub-stable-${{ hashFiles('**/pubspec.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-pub-stable-
+          ${{ runner.os }}-pub-
+    
+    - name: Install dependencies
+      run: dart pub get
+    
+    - name: Verify formatting
+      run: dart format --output=none --set-exit-if-changed .
+    
+    - name: Analyze project source
+      run: dart analyze --fatal-infos
+    
+    - name: Check pub publish warnings
+      run: dart pub publish --dry-run
+
+  coverage:
+    name: Test Coverage
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Setup Dart SDK
+      uses: dart-lang/setup-dart@v1
+      with:
+        sdk: stable
+    
+    - name: Cache pub dependencies
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.pub-cache
+          .dart_tool/package_config.json
+        key: ${{ runner.os }}-pub-stable-${{ hashFiles('**/pubspec.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-pub-stable-
+          ${{ runner.os }}-pub-
+    
+    - name: Install dependencies
+      run: dart pub get
+    
+    - name: Install coverage tools
+      run: dart pub global activate coverage
+    
+    - name: Run tests with coverage
+      run: dart pub global run coverage:test_with_coverage
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: coverage/lcov.info
+        token: ${{ secrets.CODECOV_TOKEN }}
+        fail_ci_if_error: false

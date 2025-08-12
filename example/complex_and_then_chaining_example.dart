@@ -6,7 +6,7 @@ void main() async {
       .andThen((user) => validateUser(user))
       .match(
         onSuccess: (value) => print(value),
-        onError: (error) => print(error),
+        onError: (error, stackTrace) => print(error),
       );
 
   final tempPath = await generateNewName()
@@ -27,7 +27,7 @@ void main() async {
 
   tempPath.match(
     onSuccess: (value) => print(value),
-    onError: (error) => print(error),
+    onError: (error, stackTrace) => print(error),
   );
 }
 

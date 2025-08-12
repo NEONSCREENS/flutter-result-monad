@@ -13,7 +13,7 @@ Future<void> main() async {
       .transformAsync((y) async => ds(() => y.toString()))
       .match(
         onSuccess: (value) => print('Succeeded! $value'),
-        onError: (error) => print('Error! $error'),
+        onError: (error, stackTrace) => print('Error! $error'),
       );
 
   print('Showing same as above but with error propagation');
@@ -27,7 +27,7 @@ Future<void> main() async {
       .transformAsync((y) async => ds(() => y.toString()))
       .match(
         onSuccess: (value) => print('Succeeded! $value'),
-        onError: (error) => print('Error! $error'),
+        onError: (error, stackTrace) => print('Error! $error'),
       );
 }
 

@@ -5,7 +5,7 @@ import 'package:test/test.dart';
 
 void main() {
   group('Constructors', () {
-    group('ok', (){
+    group('ok', () {
       test('without explicit error type defaults to dynamic', () {
         const a = Result.ok(10);
         expect(a, isA<Result<int, dynamic>>());
@@ -16,7 +16,6 @@ void main() {
         expect(b, isA<Result<int, String>>());
       });
     });
-
 
     group('error', () {
       test('without explicit error type defaults to dynamic', () {
