@@ -86,13 +86,15 @@ extension FutureResultExtension<T, E> on Future<Result<T, E>> {
   Future<void> match(
       {required Function(T value) onSuccess,
       required Function(E error, StackTrace? stackTrace) onError}) {
-    return then((result) => result.match(onSuccess: onSuccess, onError: onError));
+    return then(
+        (result) => result.match(onSuccess: onSuccess, onError: onError));
   }
 
   /// See documentation for the [Result.fold] method.
   Future<T2> fold<T2>(
       {required T2 Function(T value) onSuccess,
       required T2 Function(E error, StackTrace? stackTrace) onError}) {
-    return then((result) => result.fold(onSuccess: onSuccess, onError: onError));
+    return then(
+        (result) => result.fold(onSuccess: onSuccess, onError: onError));
   }
 }
