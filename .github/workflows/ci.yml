@@ -46,21 +46,22 @@ jobs:
     
     - name: Run tests
       run: dart test --platform vm --timeout 30s --concurrency=6 --test-randomize-ordering-seed=random --reporter=expanded
-   publish:
-     needs: test
-     runs-on: ubuntu-latest
-     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-     steps:
-     - name: Checkout code
-       uses: actions/checkout@v4
 
-     - name: Setup Dart SDK
-       uses: dart-lang/setup-dart@v1
-       with:
-         sdk: stable
+  publish:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-     - name: Install dependencies
-       run: dart pub get
+    - name: Setup Dart SDK
+      uses: dart-lang/setup-dart@v1
+      with:
+        sdk: stable
 
-     - name: Publish to pub.dev
-       run: dart pub publish --dry-run
+    - name: Install dependencies
+      run: dart pub get
+
+    - name: Publish to pub.dev
+      run: dart pub publish --dry-run

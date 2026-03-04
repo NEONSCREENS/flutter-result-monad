@@ -109,6 +109,23 @@ final result = runCatching(() {
 
 See the `example/stacktrace_example.dart` file for more examples of using stacktrace information.
 
+## Test Matchers
+
+The companion package [`result_monad_test`](result_monad_test/) provides `isOk` and `isError` matchers for expressive assertions in tests.
+
+```yaml
+dev_dependencies:
+  result_monad_test: ^1.0.0
+```
+
+```dart
+import 'package:result_monad_test/result_monad_test.dart';
+
+expect(result, isOk(42));
+expect(result, isError('not found'));
+expect(result, isOk<int>().having((r) => r.value, 'value', greaterThan(0)));
+```
+
 ## Additional information
 
 This result monad implementation takes inspiration from the

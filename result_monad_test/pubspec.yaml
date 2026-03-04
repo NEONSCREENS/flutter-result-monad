@@ -1,0 +1,21 @@
+name: result_monad_test
+description: Test matchers and utilities for the result_monad package. Provides isOk/isError matchers for expressive Result assertions.
+version: 1.0.0
+homepage: https://github.com/NEONSCREENS/flutter-result-monad
+repository: https://github.com/NEONSCREENS/flutter-result-monad/tree/main/result_monad_test
+issue_tracker: https://github.com/NEONSCREENS/flutter-result-monad/issues
+topics:
+  - result
+  - monad
+  - testing
+
+environment:
+  sdk: '>=2.14.4 <4.0.0'
+
+dependencies:
+  matcher: '>=0.12.11 <1.0.0'
+  result_monad: ^2.5.1
+
+dev_dependencies:
+  lints: ^1.0.1
+  test: ^1.21.4
