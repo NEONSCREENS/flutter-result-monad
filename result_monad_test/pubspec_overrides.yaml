@@ -1,0 +1,3 @@
+dependency_overrides:
+  result_monad:
+    path: ../
