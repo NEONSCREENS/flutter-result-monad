@@ -11,4 +11,4 @@ analyze: ## Analyze code with linter
 
 test: ## Run tests
 	@echo "Running tests..."
-	@dart test
+	@dart test --chain-stack-traces
